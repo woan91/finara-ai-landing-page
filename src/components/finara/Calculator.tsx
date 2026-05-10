@@ -48,36 +48,39 @@ export function Calculator() {
 
   const insights = useMemo(() => {
     const list: { tone: "good" | "warn" | "tip"; text: string }[] = [];
+    const ins = t.calc.insights;
+    const rate = Math.round(metrics.savingsRate);
 
     if (metrics.savingsRate >= 20) {
-      list.push({ tone: "good", text: `Your savings rate of ${metrics.savingsRate.toFixed(0)}% is healthy — above the 20% benchmark.` });
+      list.push({ tone: "good", text: ins.rateGood(rate) });
     } else if (metrics.savingsRate >= 10) {
-      list.push({ tone: "tip", text: `Your savings rate is ${metrics.savingsRate.toFixed(0)}%. Aiming for 20% would accelerate your goal meaningfully.` });
+      list.push({ tone: "tip", text: ins.rateTip(rate) });
     } else {
-      list.push({ tone: "warn", text: `Your savings rate is only ${metrics.savingsRate.toFixed(0)}%. Trim a recurring expense to free up cash flow.` });
+      list.push({ tone: "warn", text: ins.rateWarn(rate) });
     }
 
     if (metrics.onTrack) {
-      list.push({ tone: "good", text: `Your target is realistic — you can comfortably set aside $${metrics.monthlyNeeded.toFixed(0)}/mo.` });
+      list.push({ tone: "good", text: ins.targetGood(Math.round(metrics.monthlyNeeded)) });
     } else if (metrics.disposable > 0) {
-      list.push({ tone: "warn", text: `You're short by $${metrics.gap.toFixed(0)}/mo. Reduce discretionary spending or extend the timeline.` });
+      list.push({ tone: "warn", text: ins.targetWarn(Math.round(metrics.gap)) });
     } else {
-      list.push({ tone: "warn", text: `Expenses meet or exceed income. Rebalance your budget before committing to a goal.` });
+      list.push({ tone: "warn", text: ins.targetRebalance });
     }
 
     if (isFinite(metrics.projectedMonths) && metrics.projectedMonths < months) {
-      list.push({ tone: "tip", text: `At full disposable income you could hit your goal in ~${Math.ceil(metrics.projectedMonths)} months — ${months - Math.ceil(metrics.projectedMonths)} months sooner.` });
+      const m = Math.ceil(metrics.projectedMonths);
+      list.push({ tone: "tip", text: ins.faster(m, months - m) });
     } else if (!isFinite(metrics.projectedMonths)) {
-      list.push({ tone: "tip", text: `Build a $${(income * 0.05).toFixed(0)} starter buffer first — small wins compound.` });
+      list.push({ tone: "tip", text: ins.starter(Math.round(income * 0.05)) });
     } else {
-      list.push({ tone: "tip", text: `Automate $${(metrics.monthlyNeeded / 2).toFixed(0)} on payday to stay consistent without thinking.` });
+      list.push({ tone: "tip", text: ins.automate(Math.round(metrics.monthlyNeeded / 2)) });
     }
 
     return list;
-  }, [metrics, months, income]);
+  }, [metrics, months, income, t]);
 
   const eta = isFinite(metrics.projectedMonths)
-    ? `${Math.ceil(metrics.projectedMonths)} mo`
+    ? t.calc.months(Math.ceil(metrics.projectedMonths)).replace(/months?/, "mo")
     : "—";
 
   return (
