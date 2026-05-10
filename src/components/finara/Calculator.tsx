@@ -1,11 +1,37 @@
-import { useMemo, useState } from "react";
-import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb, ChevronDown } from "lucide-react";
+
+const CATEGORY_KEYS = ["housing", "food", "transport", "shopping", "entertainment", "other"] as const;
+type CategoryKey = typeof CATEGORY_KEYS[number];
+const CATEGORY_LABELS: Record<CategoryKey, string> = {
+  housing: "Housing",
+  food: "Food",
+  transport: "Transport",
+  shopping: "Shopping",
+  entertainment: "Entertainment",
+  other: "Other expenses",
+};
 
 export function Calculator() {
   const [income, setIncome] = useState(3500);
   const [expenses, setExpenses] = useState(2200);
   const [target, setTarget] = useState(10000);
   const [months, setMonths] = useState(18);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [categories, setCategories] = useState<Record<CategoryKey, string>>({
+    housing: "", food: "", transport: "", shopping: "", entertainment: "", other: "",
+  });
+
+  const categoryTotal = useMemo(
+    () => CATEGORY_KEYS.reduce((sum, k) => sum + (parseFloat(categories[k]) || 0), 0),
+    [categories]
+  );
+
+  useEffect(() => {
+    if (!breakdownOpen) return;
+    const total = Math.min(categoryTotal, income);
+    setExpenses(Math.round(total));
+  }, [categoryTotal, breakdownOpen, income]);
 
   const metrics = useMemo(() => {
     const disposable = Math.max(0, income - expenses);
@@ -74,7 +100,45 @@ export function Calculator() {
 
           <div className="mt-8 space-y-6">
             <Slider label="Monthly income" value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
-            <Slider label="Monthly expenses" value={expenses} min={0} max={Math.max(income, 1)} step={50} format={(v) => `$${v.toLocaleString()}`} onChange={(v) => setExpenses(Math.min(v, income))} />
+            <div>
+              <Slider
+                label="Monthly expenses"
+                value={expenses}
+                min={0}
+                max={Math.max(income, 1)}
+                step={50}
+                format={(v) => `$${v.toLocaleString()}`}
+                onChange={(v) => { if (breakdownOpen) return; setExpenses(Math.min(v, income)); }}
+              />
+              <button
+                type="button"
+                onClick={() => setBreakdownOpen((o) => !o)}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition"
+                aria-expanded={breakdownOpen}
+              >
+                <ChevronDown className={`size-3.5 transition-transform ${breakdownOpen ? "rotate-180" : ""}`} />
+                {breakdownOpen ? "Hide breakdown" : "Break down expenses"}
+              </button>
+
+              {breakdownOpen && (
+                <div className="mt-4 rounded-2xl border border-border bg-card/60 p-4 animate-fade-up">
+                  <div className="grid grid-cols-2 gap-3">
+                    {CATEGORY_KEYS.map((key) => (
+                      <CategoryInput
+                        key={key}
+                        label={CATEGORY_LABELS[key]}
+                        value={categories[key]}
+                        onChange={(v) => setCategories((c) => ({ ...c, [key]: v }))}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Total from categories</span>
+                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+                  </div>
+                </div>
+              )}
+            </div>
             <Slider label="Savings target" value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
             <Slider label="Timeline" value={months} min={1} max={60} step={1} format={(v) => `${v} months`} onChange={setMonths} />
           </div>
@@ -206,5 +270,25 @@ function Insight({ tone, text }: { tone: "good" | "warn" | "tip"; text: string }
       <Icon className={`size-4 mt-0.5 shrink-0 ${color}`} />
       <p className="text-foreground/85 leading-snug">{text}</p>
     </div>
+  );
+}
+
+function CategoryInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] text-muted-foreground">{label}</span>
+      <div className="mt-1 relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+        <input
+          type="number"
+          inputMode="decimal"
+          min={0}
+          placeholder="0"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full rounded-xl border border-border bg-background/60 pl-6 pr-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+        />
+      </div>
+    </label>
   );
 }
