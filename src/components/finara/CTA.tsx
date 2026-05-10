@@ -1,7 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { useI18n } from "./i18n";
 
 export function CTA() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
@@ -13,12 +15,12 @@ export function CTA() {
           <div aria-hidden className="absolute -bottom-32 -left-20 size-[360px] rounded-full bg-mesh opacity-30 blur-3xl" />
 
           <div className="relative max-w-2xl">
-            <p className="text-xs uppercase tracking-widest opacity-60">Join the waitlist</p>
+            <p className="text-xs uppercase tracking-widest opacity-60">{t.cta.eyebrow}</p>
             <h2 className="mt-3 font-display text-4xl sm:text-6xl tracking-tight">
-              Build a better<br />financial future, <em className="not-italic text-gradient">today</em>.
+              {t.cta.titleA}<br />{t.cta.titleB}<em className="not-italic text-gradient">{t.cta.titleHighlight}</em>.
             </h2>
             <p className="mt-5 opacity-70 text-lg">
-              Be among the first to try Finara AI. Early users get lifetime Pro features, free.
+              {t.cta.subtitle}
             </p>
 
             <form
@@ -27,24 +29,24 @@ export function CTA() {
             >
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@email.com"
+                placeholder={t.cta.placeholder}
                 className="flex-1 rounded-full bg-background/10 border border-background/20 px-5 py-3.5 text-sm placeholder:text-background/50 outline-none focus:border-background/60 transition"
               />
               <button className="group inline-flex items-center justify-center gap-2 rounded-full bg-background text-foreground px-6 py-3.5 text-sm font-medium hover:scale-[1.02] transition">
-                {done ? "You're in ✓" : "Get early access"}
+                {done ? t.cta.success : t.cta.button}
                 {!done && <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />}
               </button>
             </form>
-            <p className="mt-4 text-xs opacity-50">No spam. Unsubscribe anytime.</p>
+            <p className="mt-4 text-xs opacity-50">{t.cta.nospam}</p>
           </div>
         </div>
 
         <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} Finara AI · Crafted with care</div>
+          <div>© {new Date().getFullYear()} Finara AI · {t.cta.rights}</div>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-foreground transition">Privacy</a>
-            <a href="#" className="hover:text-foreground transition">Terms</a>
-            <a href="#" className="hover:text-foreground transition">Contact</a>
+            <a href="#" className="hover:text-foreground transition">{t.cta.privacy}</a>
+            <a href="#" className="hover:text-foreground transition">{t.cta.terms}</a>
+            <a href="#" className="hover:text-foreground transition">{t.cta.contact}</a>
           </div>
         </footer>
       </div>
