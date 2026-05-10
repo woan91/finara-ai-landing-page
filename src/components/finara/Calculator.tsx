@@ -223,12 +223,13 @@ function Stat({ icon, label, value, suffix }: { icon?: React.ReactNode; label: s
 }
 
 function HealthBar({ score }: { score: number }) {
+  const { t } = useI18n();
   const clamped = Math.max(0, Math.min(100, score));
-  const tone = clamped >= 70 ? "Strong" : clamped >= 40 ? "Building" : "Fragile";
+  const tone = clamped >= 70 ? t.calc.healthStrong : clamped >= 40 ? t.calc.healthBuilding : t.calc.healthFragile;
   return (
     <div className="mt-5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Financial health</span>
+        <span>{t.calc.healthLabel}</span>
         <span className="font-medium text-foreground">{tone}</span>
       </div>
       <div className="mt-2 h-2 rounded-full bg-secondary overflow-hidden">
@@ -242,16 +243,17 @@ function HealthBar({ score }: { score: number }) {
 }
 
 function StatusPill({ onTrack, disposable }: { onTrack: boolean; disposable: number }) {
+  const { t } = useI18n();
   if (disposable <= 0) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-        <AlertTriangle className="size-3" /> Rebalance
+        <AlertTriangle className="size-3" /> {t.calc.rebalance}
       </span>
     );
   }
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${onTrack ? "bg-[oklch(0.95_0.06_165)] text-[oklch(0.35_0.12_165)]" : "bg-[oklch(0.96_0.04_60)] text-[oklch(0.4_0.12_60)]"}`}>
-      <CheckCircle2 className="size-3" /> {onTrack ? "On track" : "Stretch goal"}
+      <CheckCircle2 className="size-3" /> {onTrack ? t.calc.onTrack : t.calc.stretch}
     </span>
   );
 }
