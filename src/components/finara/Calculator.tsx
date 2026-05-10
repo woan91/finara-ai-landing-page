@@ -80,7 +80,7 @@ export function Calculator() {
   }, [metrics, months, income, t]);
 
   const eta = isFinite(metrics.projectedMonths)
-    ? t.calc.months(Math.ceil(metrics.projectedMonths)).replace(/months?/, "mo")
+    ? t.calc.months(Math.ceil(metrics.projectedMonths))
     : "—";
 
   return (
