@@ -272,3 +272,23 @@ function Insight({ tone, text }: { tone: "good" | "warn" | "tip"; text: string }
     </div>
   );
 }
+
+function CategoryInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] text-muted-foreground">{label}</span>
+      <div className="mt-1 relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+        <input
+          type="number"
+          inputMode="decimal"
+          min={0}
+          placeholder="0"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full rounded-xl border border-border bg-background/60 pl-6 pr-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+        />
+      </div>
+    </label>
+  );
+}
