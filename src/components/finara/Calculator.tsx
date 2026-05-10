@@ -1,11 +1,37 @@
-import { useMemo, useState } from "react";
-import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb, ChevronDown } from "lucide-react";
+
+const CATEGORY_KEYS = ["housing", "food", "transport", "shopping", "entertainment", "other"] as const;
+type CategoryKey = typeof CATEGORY_KEYS[number];
+const CATEGORY_LABELS: Record<CategoryKey, string> = {
+  housing: "Housing",
+  food: "Food",
+  transport: "Transport",
+  shopping: "Shopping",
+  entertainment: "Entertainment",
+  other: "Other expenses",
+};
 
 export function Calculator() {
   const [income, setIncome] = useState(3500);
   const [expenses, setExpenses] = useState(2200);
   const [target, setTarget] = useState(10000);
   const [months, setMonths] = useState(18);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [categories, setCategories] = useState<Record<CategoryKey, string>>({
+    housing: "", food: "", transport: "", shopping: "", entertainment: "", other: "",
+  });
+
+  const categoryTotal = useMemo(
+    () => CATEGORY_KEYS.reduce((sum, k) => sum + (parseFloat(categories[k]) || 0), 0),
+    [categories]
+  );
+
+  useEffect(() => {
+    if (!breakdownOpen) return;
+    const total = Math.min(categoryTotal, income);
+    setExpenses(Math.round(total));
+  }, [categoryTotal, breakdownOpen, income]);
 
   const metrics = useMemo(() => {
     const disposable = Math.max(0, income - expenses);
