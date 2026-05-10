@@ -100,7 +100,45 @@ export function Calculator() {
 
           <div className="mt-8 space-y-6">
             <Slider label="Monthly income" value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
-            <Slider label="Monthly expenses" value={expenses} min={0} max={Math.max(income, 1)} step={50} format={(v) => `$${v.toLocaleString()}`} onChange={(v) => setExpenses(Math.min(v, income))} />
+            <div>
+              <Slider
+                label="Monthly expenses"
+                value={expenses}
+                min={0}
+                max={Math.max(income, 1)}
+                step={50}
+                format={(v) => `$${v.toLocaleString()}`}
+                onChange={(v) => { if (breakdownOpen) return; setExpenses(Math.min(v, income)); }}
+              />
+              <button
+                type="button"
+                onClick={() => setBreakdownOpen((o) => !o)}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition"
+                aria-expanded={breakdownOpen}
+              >
+                <ChevronDown className={`size-3.5 transition-transform ${breakdownOpen ? "rotate-180" : ""}`} />
+                {breakdownOpen ? "Hide breakdown" : "Break down expenses"}
+              </button>
+
+              {breakdownOpen && (
+                <div className="mt-4 rounded-2xl border border-border bg-card/60 p-4 animate-fade-up">
+                  <div className="grid grid-cols-2 gap-3">
+                    {CATEGORY_KEYS.map((key) => (
+                      <CategoryInput
+                        key={key}
+                        label={CATEGORY_LABELS[key]}
+                        value={categories[key]}
+                        onChange={(v) => setCategories((c) => ({ ...c, [key]: v }))}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Total from categories</span>
+                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+                  </div>
+                </div>
+              )}
+            </div>
             <Slider label="Savings target" value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
             <Slider label="Timeline" value={months} min={1} max={60} step={1} format={(v) => `${v} months`} onChange={setMonths} />
           </div>
