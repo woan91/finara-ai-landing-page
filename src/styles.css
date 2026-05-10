@@ -90,6 +90,9 @@
 
 @layer utilities {
   .font-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em; }
+  .lang-zh { font-family: "Inter", "Noto Sans SC", system-ui, sans-serif; }
+  .lang-zh .font-display { font-family: "Noto Serif SC", "Instrument Serif", serif; font-weight: 500; letter-spacing: 0; }
+  .lang-zh .italic { font-style: normal; }
   .text-gradient {
     background: linear-gradient(135deg, oklch(0.3 0.12 265), oklch(0.55 0.2 285) 60%, oklch(0.7 0.15 165));
     -webkit-background-clip: text;

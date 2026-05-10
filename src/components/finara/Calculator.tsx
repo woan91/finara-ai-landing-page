@@ -1,18 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb, ChevronDown } from "lucide-react";
+import { useI18n } from "./i18n";
 
 const CATEGORY_KEYS = ["housing", "food", "transport", "shopping", "entertainment", "other"] as const;
 type CategoryKey = typeof CATEGORY_KEYS[number];
-const CATEGORY_LABELS: Record<CategoryKey, string> = {
-  housing: "Housing",
-  food: "Food",
-  transport: "Transport",
-  shopping: "Shopping",
-  entertainment: "Entertainment",
-  other: "Other expenses",
-};
 
 export function Calculator() {
+  const { t } = useI18n();
   const [income, setIncome] = useState(3500);
   const [expenses, setExpenses] = useState(2200);
   const [target, setTarget] = useState(10000);
@@ -54,55 +48,58 @@ export function Calculator() {
 
   const insights = useMemo(() => {
     const list: { tone: "good" | "warn" | "tip"; text: string }[] = [];
+    const ins = t.calc.insights;
+    const rate = Math.round(metrics.savingsRate);
 
     if (metrics.savingsRate >= 20) {
-      list.push({ tone: "good", text: `Your savings rate of ${metrics.savingsRate.toFixed(0)}% is healthy — above the 20% benchmark.` });
+      list.push({ tone: "good", text: ins.rateGood(rate) });
     } else if (metrics.savingsRate >= 10) {
-      list.push({ tone: "tip", text: `Your savings rate is ${metrics.savingsRate.toFixed(0)}%. Aiming for 20% would accelerate your goal meaningfully.` });
+      list.push({ tone: "tip", text: ins.rateTip(rate) });
     } else {
-      list.push({ tone: "warn", text: `Your savings rate is only ${metrics.savingsRate.toFixed(0)}%. Trim a recurring expense to free up cash flow.` });
+      list.push({ tone: "warn", text: ins.rateWarn(rate) });
     }
 
     if (metrics.onTrack) {
-      list.push({ tone: "good", text: `Your target is realistic — you can comfortably set aside $${metrics.monthlyNeeded.toFixed(0)}/mo.` });
+      list.push({ tone: "good", text: ins.targetGood(Math.round(metrics.monthlyNeeded)) });
     } else if (metrics.disposable > 0) {
-      list.push({ tone: "warn", text: `You're short by $${metrics.gap.toFixed(0)}/mo. Reduce discretionary spending or extend the timeline.` });
+      list.push({ tone: "warn", text: ins.targetWarn(Math.round(metrics.gap)) });
     } else {
-      list.push({ tone: "warn", text: `Expenses meet or exceed income. Rebalance your budget before committing to a goal.` });
+      list.push({ tone: "warn", text: ins.targetRebalance });
     }
 
     if (isFinite(metrics.projectedMonths) && metrics.projectedMonths < months) {
-      list.push({ tone: "tip", text: `At full disposable income you could hit your goal in ~${Math.ceil(metrics.projectedMonths)} months — ${months - Math.ceil(metrics.projectedMonths)} months sooner.` });
+      const m = Math.ceil(metrics.projectedMonths);
+      list.push({ tone: "tip", text: ins.faster(m, months - m) });
     } else if (!isFinite(metrics.projectedMonths)) {
-      list.push({ tone: "tip", text: `Build a $${(income * 0.05).toFixed(0)} starter buffer first — small wins compound.` });
+      list.push({ tone: "tip", text: ins.starter(Math.round(income * 0.05)) });
     } else {
-      list.push({ tone: "tip", text: `Automate $${(metrics.monthlyNeeded / 2).toFixed(0)} on payday to stay consistent without thinking.` });
+      list.push({ tone: "tip", text: ins.automate(Math.round(metrics.monthlyNeeded / 2)) });
     }
 
     return list;
-  }, [metrics, months, income]);
+  }, [metrics, months, income, t]);
 
   const eta = isFinite(metrics.projectedMonths)
-    ? `${Math.ceil(metrics.projectedMonths)} mo`
+    ? t.calc.months(Math.ceil(metrics.projectedMonths))
     : "—";
 
   return (
     <section id="calculator" className="relative py-28 bg-hero">
       <div className="mx-auto max-w-6xl px-6 grid lg:grid-cols-2 gap-12 items-start">
         <div className="lg:sticky lg:top-28">
-          <p className="text-sm uppercase tracking-widest text-muted-foreground">AI Goal Planner</p>
+          <p className="text-sm uppercase tracking-widest text-muted-foreground">{t.calc.eyebrow}</p>
           <h2 className="mt-3 font-display text-4xl sm:text-5xl tracking-tight">
-            Try the <span className="text-gradient italic">savings preview</span>.
+            {t.calc.titleA}<span className="text-gradient italic">{t.calc.titleB}</span>{t.calc.titleEnd}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg max-w-md">
-            Enter your real numbers. Finara calculates your plan, your health score, and what to do next.
+            {t.calc.subtitle}
           </p>
 
           <div className="mt-8 space-y-6">
-            <Slider label="Monthly income" value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
+            <Slider label={t.calc.income} value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
             <div>
               <Slider
-                label="Monthly expenses"
+                label={t.calc.expenses}
                 value={expenses}
                 min={0}
                 max={Math.max(income, 1)}
@@ -117,7 +114,7 @@ export function Calculator() {
                 aria-expanded={breakdownOpen}
               >
                 <ChevronDown className={`size-3.5 transition-transform ${breakdownOpen ? "rotate-180" : ""}`} />
-                {breakdownOpen ? "Hide breakdown" : "Break down expenses"}
+                {breakdownOpen ? t.calc.hideBreakdown : t.calc.breakDown}
               </button>
 
               {breakdownOpen && (
@@ -126,26 +123,26 @@ export function Calculator() {
                     {CATEGORY_KEYS.map((key) => (
                       <CategoryInput
                         key={key}
-                        label={CATEGORY_LABELS[key]}
+                        label={t.calc.categories[key]}
                         value={categories[key]}
                         onChange={(v) => setCategories((c) => ({ ...c, [key]: v }))}
                       />
                     ))}
                   </div>
                   <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Total from categories</span>
-                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+                    <span className="text-muted-foreground">{t.calc.totalCategories}</span>
+                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">{t.calc.perMo}</span></span>
                   </div>
                 </div>
               )}
             </div>
-            <Slider label="Savings target" value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
-            <Slider label="Timeline" value={months} min={1} max={60} step={1} format={(v) => `${v} months`} onChange={setMonths} />
+            <Slider label={t.calc.target} value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
+            <Slider label={t.calc.timeline} value={months} min={1} max={60} step={1} format={(v) => t.calc.months(v)} onChange={setMonths} />
           </div>
 
           <div className="mt-6 rounded-2xl border border-border bg-card/60 p-4 text-sm flex items-center justify-between">
-            <span className="text-muted-foreground">Disposable income</span>
-            <span className="font-semibold">${metrics.disposable.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+            <span className="text-muted-foreground">{t.calc.disposable}</span>
+            <span className="font-semibold">${metrics.disposable.toLocaleString()} <span className="text-muted-foreground font-normal">{t.calc.perMo}</span></span>
           </div>
         </div>
 
@@ -154,27 +151,27 @@ export function Calculator() {
           <div className="relative rounded-3xl bg-card border border-border p-8 shadow-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Sparkles className="size-3.5 text-primary" /> Finara AI analysis
+                <Sparkles className="size-3.5 text-primary" /> {t.calc.analysis}
               </div>
               <StatusPill onTrack={metrics.onTrack} disposable={metrics.disposable} />
             </div>
 
             <div className="mt-4">
-              <div className="text-sm text-muted-foreground">Save this much each month</div>
+              <div className="text-sm text-muted-foreground">{t.calc.saveEachMonth}</div>
               <div className="mt-1 font-display text-6xl text-gradient leading-none">
                 ${metrics.monthlyNeeded.toFixed(0)}
               </div>
               <div className="mt-2 text-xs text-muted-foreground">
                 {metrics.onTrack
-                  ? `Within reach — uses ${((metrics.monthlyNeeded / Math.max(1, metrics.disposable)) * 100).toFixed(0)}% of disposable income.`
-                  : `Above your current disposable income by $${metrics.gap.toFixed(0)}.`}
+                  ? t.calc.withinReach(Math.round((metrics.monthlyNeeded / Math.max(1, metrics.disposable)) * 100))
+                  : t.calc.aboveDisposable(Math.round(metrics.gap))}
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <Stat icon={<TrendingUp className="size-3.5" />} label="Savings rate" value={`${metrics.savingsRate.toFixed(0)}%`} />
-              <Stat icon={<Target className="size-3.5" />} label="Goal ETA" value={eta} />
-              <Stat icon={<Activity className="size-3.5" />} label="Health" value={`${metrics.health}`} suffix="/100" />
+              <Stat icon={<TrendingUp className="size-3.5" />} label={t.calc.savingsRate} value={`${metrics.savingsRate.toFixed(0)}%`} />
+              <Stat icon={<Target className="size-3.5" />} label={t.calc.eta} value={eta} />
+              <Stat icon={<Activity className="size-3.5" />} label={t.calc.health} value={`${metrics.health}`} suffix="/100" />
             </div>
 
             <HealthBar score={metrics.health} />
@@ -186,7 +183,7 @@ export function Calculator() {
             </div>
 
             <button className="mt-6 w-full rounded-full bg-primary-gradient text-primary-foreground py-3.5 text-sm font-medium shadow-glow hover:scale-[1.01] transition">
-              Build my full plan
+              {t.calc.buildPlan}
             </button>
           </div>
         </div>
@@ -226,12 +223,13 @@ function Stat({ icon, label, value, suffix }: { icon?: React.ReactNode; label: s
 }
 
 function HealthBar({ score }: { score: number }) {
+  const { t } = useI18n();
   const clamped = Math.max(0, Math.min(100, score));
-  const tone = clamped >= 70 ? "Strong" : clamped >= 40 ? "Building" : "Fragile";
+  const tone = clamped >= 70 ? t.calc.healthStrong : clamped >= 40 ? t.calc.healthBuilding : t.calc.healthFragile;
   return (
     <div className="mt-5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Financial health</span>
+        <span>{t.calc.healthLabel}</span>
         <span className="font-medium text-foreground">{tone}</span>
       </div>
       <div className="mt-2 h-2 rounded-full bg-secondary overflow-hidden">
@@ -245,16 +243,17 @@ function HealthBar({ score }: { score: number }) {
 }
 
 function StatusPill({ onTrack, disposable }: { onTrack: boolean; disposable: number }) {
+  const { t } = useI18n();
   if (disposable <= 0) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-        <AlertTriangle className="size-3" /> Rebalance
+        <AlertTriangle className="size-3" /> {t.calc.rebalance}
       </span>
     );
   }
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${onTrack ? "bg-[oklch(0.95_0.06_165)] text-[oklch(0.35_0.12_165)]" : "bg-[oklch(0.96_0.04_60)] text-[oklch(0.4_0.12_60)]"}`}>
-      <CheckCircle2 className="size-3" /> {onTrack ? "On track" : "Stretch goal"}
+      <CheckCircle2 className="size-3" /> {onTrack ? t.calc.onTrack : t.calc.stretch}
     </span>
   );
 }
