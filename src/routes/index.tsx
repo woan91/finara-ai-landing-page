@@ -1,26 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Nav } from "@/components/finara/Nav";
+import { Hero } from "@/components/finara/Hero";
+import { Features } from "@/components/finara/Features";
+import { Calculator } from "@/components/finara/Calculator";
+import { CTA } from "@/components/finara/CTA";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Finara AI — Your AI Financial Companion" },
+      { name: "description", content: "Plan savings goals, improve financial habits, and build a better future with AI. Built for young professionals and overseas workers." },
+      { property: "og:title", content: "Finara AI — Your AI Financial Companion" },
+      { property: "og:description", content: "AI savings goal planner for the next generation of earners." },
+    ],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  return <PlaceholderIndex />;
+  return (
+    <main className="min-h-screen">
+      <Nav />
+      <Hero />
+      <Features />
+      <Calculator />
+      <CTA />
+    </main>
+  );
 }
