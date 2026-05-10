@@ -87,19 +87,19 @@ export function Calculator() {
     <section id="calculator" className="relative py-28 bg-hero">
       <div className="mx-auto max-w-6xl px-6 grid lg:grid-cols-2 gap-12 items-start">
         <div className="lg:sticky lg:top-28">
-          <p className="text-sm uppercase tracking-widest text-muted-foreground">AI Goal Planner</p>
+          <p className="text-sm uppercase tracking-widest text-muted-foreground">{t.calc.eyebrow}</p>
           <h2 className="mt-3 font-display text-4xl sm:text-5xl tracking-tight">
-            Try the <span className="text-gradient italic">savings preview</span>.
+            {t.calc.titleA}<span className="text-gradient italic">{t.calc.titleB}</span>{t.calc.titleEnd}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg max-w-md">
-            Enter your real numbers. Finara calculates your plan, your health score, and what to do next.
+            {t.calc.subtitle}
           </p>
 
           <div className="mt-8 space-y-6">
-            <Slider label="Monthly income" value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
+            <Slider label={t.calc.income} value={income} min={500} max={20000} step={100} format={(v) => `$${v.toLocaleString()}`} onChange={setIncome} />
             <div>
               <Slider
-                label="Monthly expenses"
+                label={t.calc.expenses}
                 value={expenses}
                 min={0}
                 max={Math.max(income, 1)}
@@ -114,7 +114,7 @@ export function Calculator() {
                 aria-expanded={breakdownOpen}
               >
                 <ChevronDown className={`size-3.5 transition-transform ${breakdownOpen ? "rotate-180" : ""}`} />
-                {breakdownOpen ? "Hide breakdown" : "Break down expenses"}
+                {breakdownOpen ? t.calc.hideBreakdown : t.calc.breakDown}
               </button>
 
               {breakdownOpen && (
@@ -123,26 +123,26 @@ export function Calculator() {
                     {CATEGORY_KEYS.map((key) => (
                       <CategoryInput
                         key={key}
-                        label={CATEGORY_LABELS[key]}
+                        label={t.calc.categories[key]}
                         value={categories[key]}
                         onChange={(v) => setCategories((c) => ({ ...c, [key]: v }))}
                       />
                     ))}
                   </div>
                   <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Total from categories</span>
-                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+                    <span className="text-muted-foreground">{t.calc.totalCategories}</span>
+                    <span className="font-semibold tabular-nums">${categoryTotal.toLocaleString()} <span className="text-muted-foreground font-normal">{t.calc.perMo}</span></span>
                   </div>
                 </div>
               )}
             </div>
-            <Slider label="Savings target" value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
-            <Slider label="Timeline" value={months} min={1} max={60} step={1} format={(v) => `${v} months`} onChange={setMonths} />
+            <Slider label={t.calc.target} value={target} min={500} max={100000} step={500} format={(v) => `$${v.toLocaleString()}`} onChange={setTarget} />
+            <Slider label={t.calc.timeline} value={months} min={1} max={60} step={1} format={(v) => t.calc.months(v)} onChange={setMonths} />
           </div>
 
           <div className="mt-6 rounded-2xl border border-border bg-card/60 p-4 text-sm flex items-center justify-between">
-            <span className="text-muted-foreground">Disposable income</span>
-            <span className="font-semibold">${metrics.disposable.toLocaleString()} <span className="text-muted-foreground font-normal">/ mo</span></span>
+            <span className="text-muted-foreground">{t.calc.disposable}</span>
+            <span className="font-semibold">${metrics.disposable.toLocaleString()} <span className="text-muted-foreground font-normal">{t.calc.perMo}</span></span>
           </div>
         </div>
 
@@ -151,27 +151,27 @@ export function Calculator() {
           <div className="relative rounded-3xl bg-card border border-border p-8 shadow-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Sparkles className="size-3.5 text-primary" /> Finara AI analysis
+                <Sparkles className="size-3.5 text-primary" /> {t.calc.analysis}
               </div>
               <StatusPill onTrack={metrics.onTrack} disposable={metrics.disposable} />
             </div>
 
             <div className="mt-4">
-              <div className="text-sm text-muted-foreground">Save this much each month</div>
+              <div className="text-sm text-muted-foreground">{t.calc.saveEachMonth}</div>
               <div className="mt-1 font-display text-6xl text-gradient leading-none">
                 ${metrics.monthlyNeeded.toFixed(0)}
               </div>
               <div className="mt-2 text-xs text-muted-foreground">
                 {metrics.onTrack
-                  ? `Within reach — uses ${((metrics.monthlyNeeded / Math.max(1, metrics.disposable)) * 100).toFixed(0)}% of disposable income.`
-                  : `Above your current disposable income by $${metrics.gap.toFixed(0)}.`}
+                  ? t.calc.withinReach(Math.round((metrics.monthlyNeeded / Math.max(1, metrics.disposable)) * 100))
+                  : t.calc.aboveDisposable(Math.round(metrics.gap))}
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3">
-              <Stat icon={<TrendingUp className="size-3.5" />} label="Savings rate" value={`${metrics.savingsRate.toFixed(0)}%`} />
-              <Stat icon={<Target className="size-3.5" />} label="Goal ETA" value={eta} />
-              <Stat icon={<Activity className="size-3.5" />} label="Health" value={`${metrics.health}`} suffix="/100" />
+              <Stat icon={<TrendingUp className="size-3.5" />} label={t.calc.savingsRate} value={`${metrics.savingsRate.toFixed(0)}%`} />
+              <Stat icon={<Target className="size-3.5" />} label={t.calc.eta} value={eta} />
+              <Stat icon={<Activity className="size-3.5" />} label={t.calc.health} value={`${metrics.health}`} suffix="/100" />
             </div>
 
             <HealthBar score={metrics.health} />
@@ -183,7 +183,7 @@ export function Calculator() {
             </div>
 
             <button className="mt-6 w-full rounded-full bg-primary-gradient text-primary-foreground py-3.5 text-sm font-medium shadow-glow hover:scale-[1.01] transition">
-              Build my full plan
+              {t.calc.buildPlan}
             </button>
           </div>
         </div>
