@@ -1,18 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb, ChevronDown } from "lucide-react";
+import { useI18n } from "./i18n";
 
 const CATEGORY_KEYS = ["housing", "food", "transport", "shopping", "entertainment", "other"] as const;
 type CategoryKey = typeof CATEGORY_KEYS[number];
-const CATEGORY_LABELS: Record<CategoryKey, string> = {
-  housing: "Housing",
-  food: "Food",
-  transport: "Transport",
-  shopping: "Shopping",
-  entertainment: "Entertainment",
-  other: "Other expenses",
-};
 
 export function Calculator() {
+  const { t } = useI18n();
   const [income, setIncome] = useState(3500);
   const [expenses, setExpenses] = useState(2200);
   const [target, setTarget] = useState(10000);
