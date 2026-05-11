@@ -39,6 +39,10 @@ type Dict = {
     titleB: string;
     titleEnd: string;
     subtitle: string;
+    goal: string;
+    currency: string;
+    presets: { emergency: string; travel: string; house: string; wedding: string; retirement: string; investment: string };
+    presetHint: string;
     income: string;
     expenses: string;
     target: string;
@@ -52,7 +56,7 @@ type Dict = {
     analysis: string;
     saveEachMonth: string;
     withinReach: (pct: number) => string;
-    aboveDisposable: (gap: number) => string;
+    aboveDisposable: (gap: string) => string;
     savingsRate: string;
     eta: string;
     health: string;
@@ -69,12 +73,12 @@ type Dict = {
       rateGood: (r: number) => string;
       rateTip: (r: number) => string;
       rateWarn: (r: number) => string;
-      targetGood: (m: number) => string;
-      targetWarn: (gap: number) => string;
+      targetGood: (m: string) => string;
+      targetWarn: (gap: string) => string;
       targetRebalance: string;
       faster: (m: number, sooner: number) => string;
-      starter: (b: number) => string;
-      automate: (a: number) => string;
+      starter: (b: string) => string;
+      automate: (a: string) => string;
     };
   };
   cta: {
@@ -144,6 +148,10 @@ const en: Dict = {
     titleB: "savings preview",
     titleEnd: ".",
     subtitle: "Enter your real numbers. Finara calculates your plan, your health score, and what to do next.",
+    goal: "Goal",
+    currency: "Currency",
+    presets: { emergency: "Emergency Fund", travel: "Travel", house: "House", wedding: "Wedding", retirement: "Retirement", investment: "Investment" },
+    presetHint: "Suggested target & timeline applied",
     income: "Monthly income",
     expenses: "Monthly expenses",
     target: "Savings target",
@@ -157,7 +165,7 @@ const en: Dict = {
     analysis: "Finara AI analysis",
     saveEachMonth: "Save this much each month",
     withinReach: (pct) => `Within reach — uses ${pct}% of disposable income.`,
-    aboveDisposable: (gap) => `Above your current disposable income by $${gap}.`,
+    aboveDisposable: (gap) => `Above your current disposable income by ${gap}.`,
     savingsRate: "Savings rate",
     eta: "Goal ETA",
     health: "Health",
@@ -177,12 +185,12 @@ const en: Dict = {
       rateGood: (r) => `Your savings rate of ${r}% is healthy — above the 20% benchmark.`,
       rateTip: (r) => `Your savings rate is ${r}%. Aiming for 20% would accelerate your goal meaningfully.`,
       rateWarn: (r) => `Your savings rate is only ${r}%. Trim a recurring expense to free up cash flow.`,
-      targetGood: (m) => `Your target is realistic — you can comfortably set aside $${m}/mo.`,
-      targetWarn: (gap) => `You're short by $${gap}/mo. Reduce discretionary spending or extend the timeline.`,
+      targetGood: (m) => `Your target is realistic — you can comfortably set aside ${m}/mo.`,
+      targetWarn: (gap) => `You're short by ${gap}/mo. Reduce discretionary spending or extend the timeline.`,
       targetRebalance: "Expenses meet or exceed income. Rebalance your budget before committing to a goal.",
       faster: (m, sooner) => `At full disposable income you could hit your goal in ~${m} months — ${sooner} months sooner.`,
-      starter: (b) => `Build a $${b} starter buffer first — small wins compound.`,
-      automate: (a) => `Automate $${a} on payday to stay consistent without thinking.`,
+      starter: (b) => `Build a ${b} starter buffer first — small wins compound.`,
+      automate: (a) => `Automate ${a} on payday to stay consistent without thinking.`,
     },
   },
   cta: {
@@ -246,6 +254,10 @@ const zh: Dict = {
     titleB: "储蓄预览",
     titleEnd: "。",
     subtitle: "输入你的真实数字。Finara 计算计划、健康评分，并告诉你下一步该做什么。",
+    goal: "目标",
+    currency: "货币",
+    presets: { emergency: "应急基金", travel: "旅行", house: "购房", wedding: "婚礼", retirement: "退休", investment: "投资" },
+    presetHint: "已应用建议目标与时间",
     income: "每月收入",
     expenses: "每月支出",
     target: "储蓄目标",
@@ -259,7 +271,7 @@ const zh: Dict = {
     analysis: "Finara AI 分析",
     saveEachMonth: "每月需储蓄",
     withinReach: (pct) => `可以达成——占可支配收入的 ${pct}%。`,
-    aboveDisposable: (gap) => `超出当前可支配收入 $${gap}。`,
+    aboveDisposable: (gap) => `超出当前可支配收入 ${gap}。`,
     savingsRate: "储蓄率",
     eta: "预计达成",
     health: "健康度",
@@ -279,12 +291,12 @@ const zh: Dict = {
       rateGood: (r) => `你的储蓄率为 ${r}%，高于 20% 的健康基准。`,
       rateTip: (r) => `你的储蓄率为 ${r}%。提升至 20% 将明显加速你的目标。`,
       rateWarn: (r) => `你的储蓄率仅为 ${r}%。建议削减一项固定开支以释放现金流。`,
-      targetGood: (m) => `目标合理——你可以每月稳定存入 $${m}。`,
-      targetWarn: (gap) => `每月差额 $${gap}。可减少非必要消费或延长时间。`,
+      targetGood: (m) => `目标合理——你可以每月稳定存入 ${m}。`,
+      targetWarn: (gap) => `每月差额 ${gap}。可减少非必要消费或延长时间。`,
       targetRebalance: "支出已等于或超过收入。请先调整预算，再设定目标。",
       faster: (m, sooner) => `若用全部可支配收入储蓄，约 ${m} 个月可达成——比预期早 ${sooner} 个月。`,
-      starter: (b) => `先建立 $${b} 的启动缓冲——小胜也能复利。`,
-      automate: (a) => `在发薪日自动储蓄 $${a}，无需思考即可坚持。`,
+      starter: (b) => `先建立 ${b} 的启动缓冲——小胜也能复利。`,
+      automate: (a) => `在发薪日自动储蓄 ${a}，无需思考即可坚持。`,
     },
   },
   cta: {
