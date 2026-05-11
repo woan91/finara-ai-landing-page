@@ -33,6 +33,7 @@ const PRESETS: { key: PresetKey; icon: typeof ShieldCheck; targetUSD: number; mo
 
 export function Calculator() {
   const { t } = useI18n();
+  const [saveOpen, setSaveOpen] = useState(false);
   const [currency, setCurrency] = useState<CurrencyCode>("USD");
   const prevCurrency = useRef<CurrencyCode>("USD");
   const [preset, setPreset] = useState<PresetKey>("travel");
