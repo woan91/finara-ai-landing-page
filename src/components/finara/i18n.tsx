@@ -271,7 +271,7 @@ const zh: Dict = {
     analysis: "Finara AI 分析",
     saveEachMonth: "每月需储蓄",
     withinReach: (pct) => `可以达成——占可支配收入的 ${pct}%。`,
-    aboveDisposable: (gap) => `超出当前可支配收入 $${gap}。`,
+    aboveDisposable: (gap) => `超出当前可支配收入 ${gap}。`,
     savingsRate: "储蓄率",
     eta: "预计达成",
     health: "健康度",
