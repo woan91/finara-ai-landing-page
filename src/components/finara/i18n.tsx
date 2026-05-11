@@ -165,7 +165,7 @@ const en: Dict = {
     analysis: "Finara AI analysis",
     saveEachMonth: "Save this much each month",
     withinReach: (pct) => `Within reach — uses ${pct}% of disposable income.`,
-    aboveDisposable: (gap) => `Above your current disposable income by $${gap}.`,
+    aboveDisposable: (gap) => `Above your current disposable income by ${gap}.`,
     savingsRate: "Savings rate",
     eta: "Goal ETA",
     health: "Health",
