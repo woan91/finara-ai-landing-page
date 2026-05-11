@@ -39,6 +39,10 @@ type Dict = {
     titleB: string;
     titleEnd: string;
     subtitle: string;
+    goal: string;
+    currency: string;
+    presets: { emergency: string; travel: string; house: string; wedding: string; retirement: string; investment: string };
+    presetHint: string;
     income: string;
     expenses: string;
     target: string;
