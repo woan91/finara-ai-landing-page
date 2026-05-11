@@ -68,6 +68,19 @@ type Dict = {
     stretch: string;
     rebalance: string;
     buildPlan: string;
+    save: string;
+    saveModal: {
+      title: string;
+      subtitle: string;
+      google: string;
+      email: string;
+      emailPlaceholder: string;
+      continue: string;
+      or: string;
+      privacy: string;
+      success: string;
+      close: string;
+    };
     categories: { housing: string; food: string; transport: string; shopping: string; entertainment: string; other: string };
     insights: {
       rateGood: (r: number) => string;
