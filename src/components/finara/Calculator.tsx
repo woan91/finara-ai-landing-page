@@ -4,6 +4,7 @@ import {
   ShieldCheck, Plane, Home, Heart, PiggyBank, LineChart,
 } from "lucide-react";
 import { useI18n } from "./i18n";
+import { SavePlanModal } from "./SavePlanModal";
 
 const CATEGORY_KEYS = ["housing", "food", "transport", "shopping", "entertainment", "other"] as const;
 type CategoryKey = typeof CATEGORY_KEYS[number];
