@@ -56,7 +56,7 @@ type Dict = {
     analysis: string;
     saveEachMonth: string;
     withinReach: (pct: number) => string;
-    aboveDisposable: (gap: number) => string;
+    aboveDisposable: (gap: string) => string;
     savingsRate: string;
     eta: string;
     health: string;
@@ -73,12 +73,12 @@ type Dict = {
       rateGood: (r: number) => string;
       rateTip: (r: number) => string;
       rateWarn: (r: number) => string;
-      targetGood: (m: number) => string;
-      targetWarn: (gap: number) => string;
+      targetGood: (m: string) => string;
+      targetWarn: (gap: string) => string;
       targetRebalance: string;
       faster: (m: number, sooner: number) => string;
-      starter: (b: number) => string;
-      automate: (a: number) => string;
+      starter: (b: string) => string;
+      automate: (a: string) => string;
     };
   };
   cta: {
