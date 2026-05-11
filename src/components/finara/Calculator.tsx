@@ -290,12 +290,25 @@ export function Calculator() {
               ))}
             </div>
 
-            <button className="mt-6 w-full rounded-full bg-primary-gradient text-primary-foreground py-3.5 text-sm font-medium shadow-glow hover:scale-[1.01] transition">
-              {t.calc.buildPlan}
-            </button>
+            <div className="mt-6 grid gap-2">
+              <button
+                type="button"
+                onClick={() => setSaveOpen(true)}
+                className="w-full rounded-full bg-primary-gradient text-primary-foreground py-3.5 text-sm font-medium shadow-glow hover:scale-[1.01] transition"
+              >
+                {t.calc.save}
+              </button>
+              <button
+                type="button"
+                className="w-full rounded-full border border-border bg-background/60 hover:bg-secondary text-foreground py-3 text-sm font-medium transition"
+              >
+                {t.calc.buildPlan}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      <SavePlanModal open={saveOpen} onClose={() => setSaveOpen(false)} />
     </section>
   );
 }
