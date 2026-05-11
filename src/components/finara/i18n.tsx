@@ -68,6 +68,19 @@ type Dict = {
     stretch: string;
     rebalance: string;
     buildPlan: string;
+    save: string;
+    saveModal: {
+      title: string;
+      subtitle: string;
+      google: string;
+      email: string;
+      emailPlaceholder: string;
+      continue: string;
+      or: string;
+      privacy: string;
+      success: string;
+      close: string;
+    };
     categories: { housing: string; food: string; transport: string; shopping: string; entertainment: string; other: string };
     insights: {
       rateGood: (r: number) => string;
@@ -177,6 +190,19 @@ const en: Dict = {
     stretch: "Stretch goal",
     rebalance: "Rebalance",
     buildPlan: "Build my full plan",
+    save: "Save my plan",
+    saveModal: {
+      title: "Save your progress",
+      subtitle: "Save your financial plan and continue your progress anytime.",
+      google: "Continue with Google",
+      email: "Continue with email",
+      emailPlaceholder: "you@email.com",
+      continue: "Continue",
+      or: "or",
+      privacy: "By continuing you agree to our Terms & Privacy.",
+      success: "Plan saved ✓ We'll email you a magic link.",
+      close: "Close",
+    },
     categories: {
       housing: "Housing", food: "Food", transport: "Transport",
       shopping: "Shopping", entertainment: "Entertainment", other: "Other expenses",
@@ -283,6 +309,19 @@ const zh: Dict = {
     stretch: "略具挑战",
     rebalance: "需要调整",
     buildPlan: "生成完整计划",
+    save: "保存我的计划",
+    saveModal: {
+      title: "保存你的进度",
+      subtitle: "保存你的财务计划，随时继续你的进度。",
+      google: "使用 Google 继续",
+      email: "使用邮箱继续",
+      emailPlaceholder: "you@email.com",
+      continue: "继续",
+      or: "或",
+      privacy: "继续即表示你同意我们的条款与隐私政策。",
+      success: "计划已保存 ✓ 我们会发送登录链接到你的邮箱。",
+      close: "关闭",
+    },
     categories: {
       housing: "住房", food: "饮食", transport: "交通",
       shopping: "购物", entertainment: "娱乐", other: "其他支出",
