@@ -4,6 +4,7 @@ import { Hero } from "@/components/finara/Hero";
 import { Features } from "@/components/finara/Features";
 import { Calculator } from "@/components/finara/Calculator";
 import { CTA } from "@/components/finara/CTA";
+import { Footer } from "@/components/finara/Footer";
 import { I18nProvider } from "@/components/finara/i18n";
 
 export const Route = createFileRoute("/")({
@@ -32,6 +33,7 @@ function Index() {
         <Features />
         <Calculator />
         <CTA />
+        <Footer />
       </main>
     </I18nProvider>
   );

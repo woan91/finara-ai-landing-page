@@ -107,6 +107,8 @@ type Dict = {
     rights: string;
     privacy: string;
     terms: string;
+    disclaimer: string;
+    disclaimerText: string;
     contact: string;
   };
 };
@@ -230,8 +232,11 @@ const en: Dict = {
     success: "You're in ✓",
     nospam: "No spam. Unsubscribe anytime.",
     rights: "Crafted with care",
-    privacy: "Privacy",
-    terms: "Terms",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    disclaimer: "Disclaimer",
+    disclaimerText:
+      "Finara AI provides educational financial insights only and does not offer financial or investment advice.",
     contact: "Contact",
   },
 };
@@ -350,7 +355,10 @@ const zh: Dict = {
     nospam: "没有垃圾邮件。可随时退订。",
     rights: "用心打造",
     privacy: "隐私政策",
-    terms: "条款",
+    terms: "服务条款",
+    disclaimer: "免责声明",
+    disclaimerText:
+      "Finara AI 仅提供教育性质的财务见解，不构成任何财务或投资建议。",
     contact: "联系我们",
   },
 };

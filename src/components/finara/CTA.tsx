@@ -41,14 +41,6 @@ export function CTA() {
           </div>
         </div>
 
-        <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} Finara AI · {t.cta.rights}</div>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-foreground transition">{t.cta.privacy}</a>
-            <a href="#" className="hover:text-foreground transition">{t.cta.terms}</a>
-            <a href="#" className="hover:text-foreground transition">{t.cta.contact}</a>
-          </div>
-        </footer>
       </div>
     </section>
   );
