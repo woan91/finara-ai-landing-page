@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useI18n } from "./i18n";
 
 export function Footer() {
@@ -27,18 +28,18 @@ export function Footer() {
             aria-label="Footer"
             className="grid grid-cols-2 gap-x-10 gap-y-3 text-sm sm:grid-cols-4 md:gap-x-12"
           >
-            <a href="#" className="text-muted-foreground hover:text-foreground transition">
+            <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition">
               {t.cta.privacy}
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition">
+            </Link>
+            <Link to="/terms" className="text-muted-foreground hover:text-foreground transition">
               {t.cta.terms}
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition">
+            </Link>
+            <Link to="/disclaimer" className="text-muted-foreground hover:text-foreground transition">
               {t.cta.disclaimer}
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition">
+            </Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition">
               {t.cta.contact}
-            </a>
+            </Link>
           </nav>
         </div>
 

@@ -84,6 +84,7 @@ export function Calculator() {
 
   useEffect(() => {
     if (!breakdownOpen) return;
+    if (categoryTotal <= 0) return;
     const total = Math.min(categoryTotal, income);
     setExpenses(Math.round(total));
   }, [categoryTotal, breakdownOpen, income]);

@@ -103,6 +103,9 @@ type Dict = {
     placeholder: string;
     button: string;
     success: string;
+    alreadyOnWaitlist: string;
+    waitlistNotConfigured: string;
+    waitlistError: string;
     nospam: string;
     rights: string;
     privacy: string;
@@ -230,6 +233,9 @@ const en: Dict = {
     placeholder: "you@email.com",
     button: "Get early access",
     success: "You're in ✓",
+    alreadyOnWaitlist: "You're already on the waitlist.",
+    waitlistNotConfigured: "Waitlist is not configured yet.",
+    waitlistError: "Something went wrong. Please try again.",
     nospam: "No spam. Unsubscribe anytime.",
     rights: "Crafted with care",
     privacy: "Privacy Policy",
@@ -352,6 +358,9 @@ const zh: Dict = {
     placeholder: "you@email.com",
     button: "获取早鸟权益",
     success: "已加入 ✓",
+    alreadyOnWaitlist: "你已在候补名单中。",
+    waitlistNotConfigured: "候补名单尚未配置。",
+    waitlistError: "提交失败，请稍后再试。",
     nospam: "没有垃圾邮件。可随时退订。",
     rights: "用心打造",
     privacy: "隐私政策",
