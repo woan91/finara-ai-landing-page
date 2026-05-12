@@ -215,7 +215,7 @@ const en: Dict = {
       rateWarn: (r) => `You're saving ${r}% right now. Small habits today can create more freedom tomorrow — even tiny shifts add up.`,
       targetGood: (m) => `Your goal feels well within reach — setting aside ${m} a month should feel comfortable, not stressful.`,
       targetWarn: (gap) => `A few small adjustments could help you comfortably reach your goal — about ${gap} more a month, or a little more time, would do it.`,
-      targetRebalance: "Let's gently rebalance first. Once your everyday spending feels lighter than your income, your goal becomes much easier to hold.`",
+      targetRebalance: "Let's gently rebalance first. Once your everyday spending feels lighter than your income, your goal becomes much easier to hold.",
       faster: (m, sooner) => `If you ever feel ready to lean in fully, you could reach this in around ${m} months — about ${sooner} sooner. No pressure, just possibility.`,
       starter: (b) => `Start gently with a ${b} cushion — small wins build real confidence, and momentum follows.`,
       automate: (a) => `Try quietly automating ${a} on payday — letting it happen in the background takes the willpower out of saving.`,
