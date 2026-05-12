@@ -192,10 +192,10 @@ const en: Dict = {
     buildPlan: "Build my full plan",
     save: "Save my plan",
     saveModal: {
-      title: "Save your progress",
-      subtitle: "Save your financial plan and continue your progress anytime.",
+      title: "Save your financial journey",
+      subtitle: "Create a free account to save your AI financial plan and continue tracking your progress anytime.",
       google: "Continue with Google",
-      email: "Continue with email",
+      email: "Continue with Email",
       emailPlaceholder: "you@email.com",
       continue: "Continue",
       or: "or",
