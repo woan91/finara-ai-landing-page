@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { X, Mail, Sparkles, CheckCircle2, Loader2, Lock, ArrowRight } from "lucide-react";
 import { useI18n } from "./i18n";
 
 export function SavePlanModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -22,13 +22,12 @@ export function SavePlanModal({ open, onClose }: { open: boolean; onClose: () =>
 
   useEffect(() => {
     if (!open) {
-      // reset on close (after animation)
       const id = setTimeout(() => {
         setEmail("");
         setShowEmail(false);
         setLoading(null);
         setDone(false);
-      }, 200);
+      }, 250);
       return () => clearTimeout(id);
     }
   }, [open]);
@@ -53,106 +52,132 @@ export function SavePlanModal({ open, onClose }: { open: boolean; onClose: () =>
       aria-modal="true"
       aria-labelledby="save-plan-title"
     >
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-foreground/30 backdrop-blur-md animate-fade-up"
+        className="absolute inset-0 bg-foreground/40 backdrop-blur-md animate-fade-up"
         onClick={onClose}
       />
-      <div className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-card border border-border shadow-card p-7 sm:p-8 animate-fade-up">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.calc.saveModal.close}
-          className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition"
-        >
-          <X className="size-4" />
-        </button>
 
-        {!done ? (
-          <>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
-              <Sparkles className="size-3.5 text-primary" /> Finara AI
-            </div>
-            <h3 id="save-plan-title" className="mt-3 font-display text-3xl tracking-tight">
-              {t.calc.saveModal.title}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              {t.calc.saveModal.subtitle}
-            </p>
+      {/* Modal */}
+      <div className="relative w-full sm:max-w-md rounded-t-[28px] sm:rounded-[28px] bg-card border border-border shadow-card overflow-hidden animate-fade-up">
+        {/* Soft gradient header glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[120%] opacity-70"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 28%, transparent) 0%, transparent 65%)",
+          }}
+        />
 
-            <div className="mt-7 space-y-3">
-              <button
-                type="button"
-                onClick={handleGoogle}
-                disabled={loading !== null}
-                className="w-full flex items-center justify-center gap-3 rounded-full border border-border bg-background hover:bg-secondary py-3 text-sm font-medium transition disabled:opacity-60"
+        <div className="relative p-7 sm:p-9">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.calc.saveModal.close}
+            className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+          >
+            <X className="size-4" />
+          </button>
+
+          {!done ? (
+            <>
+              {/* Eyebrow badge */}
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 backdrop-blur px-2.5 py-1 text-[11px] font-medium tracking-wide">
+                <Sparkles className="size-3 text-primary" />
+                <span className="bg-primary-gradient bg-clip-text text-transparent">Finara AI</span>
+                <span className="text-muted-foreground">· Free</span>
+              </div>
+
+              <h3
+                id="save-plan-title"
+                className="mt-4 font-display text-[28px] sm:text-[32px] leading-[1.1] tracking-tight"
               >
-                {loading === "google" ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <GoogleIcon />
-                )}
-                <span>{t.calc.saveModal.google}</span>
-              </button>
+                {t.calc.saveModal.title}
+              </h3>
+              <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">
+                {t.calc.saveModal.subtitle}
+              </p>
 
-              {!showEmail ? (
+              {/* Auth buttons */}
+              <div className="mt-7 space-y-2.5">
                 <button
                   type="button"
-                  onClick={() => setShowEmail(true)}
-                  className="w-full flex items-center justify-center gap-3 rounded-full bg-primary-gradient text-primary-foreground py-3 text-sm font-medium shadow-glow hover:scale-[1.01] transition"
+                  onClick={handleGoogle}
+                  disabled={loading !== null}
+                  className="group w-full flex items-center justify-center gap-3 rounded-2xl border border-border bg-background hover:bg-secondary py-3.5 text-[14px] font-medium transition disabled:opacity-60 shadow-sm"
                 >
-                  <Mail className="size-4" />
-                  {t.calc.saveModal.email}
+                  {loading === "google" ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <GoogleIcon />
+                  )}
+                  <span>{t.calc.saveModal.google}</span>
                 </button>
-              ) : (
-                <form onSubmit={handleEmail} className="space-y-2 animate-fade-up">
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                    <input
-                      type="email"
-                      autoFocus
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t.calc.saveModal.emailPlaceholder}
-                      className="w-full rounded-full border border-border bg-background pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading !== null}
-                    className="w-full flex items-center justify-center gap-2 rounded-full bg-primary-gradient text-primary-foreground py-3 text-sm font-medium shadow-glow hover:scale-[1.01] transition disabled:opacity-60"
-                  >
-                    {loading === "email" && <Loader2 className="size-4 animate-spin" />}
-                    {t.calc.saveModal.continue}
-                  </button>
-                </form>
-              )}
-            </div>
 
-            <p className="mt-6 text-[11px] text-center text-muted-foreground leading-relaxed">
-              {t.calc.saveModal.privacy}
-            </p>
-          </>
-        ) : (
-          <div className="py-6 text-center animate-fade-up">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[oklch(0.95_0.06_165)]">
-              <CheckCircle2 className="size-7 text-[oklch(0.45_0.14_165)]" />
+                {!showEmail ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowEmail(true)}
+                    className="group w-full flex items-center justify-center gap-2.5 rounded-2xl bg-primary-gradient text-primary-foreground py-3.5 text-[14px] font-medium shadow-glow hover:scale-[1.01] active:scale-[0.99] transition"
+                  >
+                    <Mail className="size-4" />
+                    {t.calc.saveModal.email}
+                    <ArrowRight className="size-4 opacity-80 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                ) : (
+                  <form onSubmit={handleEmail} className="space-y-2 animate-fade-up">
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                      <input
+                        type="email"
+                        autoFocus
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t.calc.saveModal.emailPlaceholder}
+                        className="w-full rounded-2xl border border-border bg-background pl-11 pr-4 py-3.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-ring/40 transition"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={loading !== null}
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary-gradient text-primary-foreground py-3.5 text-[14px] font-medium shadow-glow hover:scale-[1.01] transition disabled:opacity-60"
+                    >
+                      {loading === "email" && <Loader2 className="size-4 animate-spin" />}
+                      {t.calc.saveModal.continue}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Trust footer */}
+              <div className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                <Lock className="size-3" />
+                <span>{t.calc.saveModal.privacy}</span>
+              </div>
+            </>
+          ) : (
+            <div className="py-6 text-center animate-fade-up">
+              <div className="relative mx-auto flex size-16 items-center justify-center rounded-full bg-primary-gradient shadow-glow">
+                <CheckCircle2 className="size-8 text-primary-foreground" />
+              </div>
+              <h3 className="mt-6 font-display text-2xl tracking-tight">
+                {t.calc.saveModal.success}
+              </h3>
+              <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">
+                {t.calc.saveModal.subtitle}
+              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-6 w-full rounded-2xl bg-foreground text-background py-3.5 text-[14px] font-medium hover:opacity-90 transition"
+              >
+                {t.calc.saveModal.close}
+              </button>
             </div>
-            <h3 className="mt-5 font-display text-2xl tracking-tight">
-              {t.calc.saveModal.success}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t.calc.saveModal.subtitle}
-            </p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-6 w-full rounded-full bg-foreground text-background py-3 text-sm font-medium hover:opacity-90 transition"
-            >
-              {t.calc.saveModal.close}
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
