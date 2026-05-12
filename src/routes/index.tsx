@@ -33,6 +33,7 @@ function Index() {
         <Features />
         <Calculator />
         <CTA />
+        <Footer />
       </main>
     </I18nProvider>
   );
