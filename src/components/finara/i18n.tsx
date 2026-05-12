@@ -311,8 +311,8 @@ const zh: Dict = {
     buildPlan: "生成完整计划",
     save: "保存我的计划",
     saveModal: {
-      title: "保存你的进度",
-      subtitle: "保存你的财务计划，随时继续你的进度。",
+      title: "保存你的财务旅程",
+      subtitle: "创建免费账户，保存你的 AI 财务计划，随时继续追踪你的进度。",
       google: "使用 Google 继续",
       email: "使用邮箱继续",
       emailPlaceholder: "you@email.com",
