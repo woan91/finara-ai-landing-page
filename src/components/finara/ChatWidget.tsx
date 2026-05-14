@@ -44,7 +44,7 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_CLAUDE_API_KEY as string | undefined;
+      const apiKey = (import.meta.env.VITE_CLAUDE_API_KEY || (globalThis as any).VITE_CLAUDE_API_KEY) as string | undefined;
       if (!apiKey) {
         setMessages((prev) => [
           ...prev,
