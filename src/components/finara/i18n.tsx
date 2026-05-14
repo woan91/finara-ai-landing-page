@@ -106,6 +106,7 @@ type Dict = {
     alreadyOnWaitlist: string;
     waitlistNotConfigured: string;
     waitlistError: string;
+    thankyou: string;
     nospam: string;
     rights: string;
     privacy: string;
@@ -133,7 +134,7 @@ const en: Dict = {
     primaryCta: "Start planning free",
     secondaryCta: "See it in action",
     security: "Bank-grade security",
-    trusted: "Trusted by 12k+ early users",
+    trusted: "Now in Private Beta",
     phone: {
       greeting: "Good morning, Maya",
       goal: "Tokyo Trip Goal",
@@ -236,6 +237,7 @@ const en: Dict = {
     alreadyOnWaitlist: "You're already on the waitlist.",
     waitlistNotConfigured: "Waitlist is not configured yet.",
     waitlistError: "Something went wrong. Please try again.",
+    thankyou: "You're on the list! 🎉 We'll reach out when Finara launches.",
     nospam: "No spam. Unsubscribe anytime.",
     rights: "Crafted with care",
     privacy: "Privacy Policy",
@@ -258,7 +260,7 @@ const zh: Dict = {
     primaryCta: "免费开始规划",
     secondaryCta: "查看演示",
     security: "银行级安全",
-    trusted: "已有超过 12,000 位早期用户",
+    trusted: "现已进入内测阶段",
     phone: {
       greeting: "早上好，Maya",
       goal: "东京旅行目标",
@@ -361,6 +363,7 @@ const zh: Dict = {
     alreadyOnWaitlist: "你已在候补名单中。",
     waitlistNotConfigured: "候补名单尚未配置。",
     waitlistError: "提交失败，请稍后再试。",
+    thankyou: "你已加入候补名单！🎉 Finara 上线时我们会第一时间通知你。",
     nospam: "没有垃圾邮件。可随时退订。",
     rights: "用心打造",
     privacy: "隐私政策",

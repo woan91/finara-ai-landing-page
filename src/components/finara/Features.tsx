@@ -1,4 +1,4 @@
-import { Brain, Target, Globe2, LineChart, Wallet, Lock } from "lucide-react";
+import { Brain, Target, Globe as Globe2, ChartLine as LineChart, Wallet, Lock } from "lucide-react";
 import { useI18n } from "./i18n";
 
 const icons = [Brain, Target, Globe2, LineChart, Wallet, Lock];
@@ -6,8 +6,8 @@ const icons = [Brain, Target, Globe2, LineChart, Wallet, Lock];
 export function Features() {
   const { t } = useI18n();
   return (
-    <section id="features" className="relative py-28">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="features" className="relative py-16 sm:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl">
           <p className="text-sm uppercase tracking-widest text-muted-foreground">{t.features.eyebrow}</p>
           <h2 className="mt-3 font-display text-4xl sm:text-5xl tracking-tight">

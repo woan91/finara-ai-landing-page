@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Sparkles, TrendingUp, Target, Activity, CheckCircle2, AlertTriangle, Lightbulb, ChevronDown,
-  ShieldCheck, Plane, Home, Heart, PiggyBank, LineChart,
-} from "lucide-react";
+import { Sparkles, TrendingUp, Target, Activity, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Lightbulb, ChevronDown, ShieldCheck, Plane, Hop as Home, Heart, PiggyBank, ChartLine as LineChart } from "lucide-react";
 import { useI18n } from "./i18n";
 import { SavePlanModal } from "./SavePlanModal";
 
@@ -143,14 +140,14 @@ export function Calculator() {
   const eta = isFinite(metrics.projectedMonths) ? t.calc.months(Math.ceil(metrics.projectedMonths)) : "—";
 
   return (
-    <section id="calculator" className="relative py-28 bg-hero">
-      <div className="mx-auto max-w-6xl px-6 grid lg:grid-cols-2 gap-12 items-start">
+    <section id="calculator" className="relative py-16 sm:py-28 bg-hero">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 grid lg:grid-cols-2 gap-10 lg:gap-12 items-start">
         <div className="lg:sticky lg:top-28">
           <p className="text-sm uppercase tracking-widest text-muted-foreground">{t.calc.eyebrow}</p>
-          <h2 className="mt-3 font-display text-4xl sm:text-5xl tracking-tight">
+          <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl tracking-tight">
             {t.calc.titleA}<span className="text-gradient italic">{t.calc.titleB}</span>{t.calc.titleEnd}
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg max-w-md">{t.calc.subtitle}</p>
+          <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-md">{t.calc.subtitle}</p>
 
           <div className="mt-8 space-y-6">
             {/* Goal preset selector */}
@@ -185,7 +182,7 @@ export function Calculator() {
             {/* Currency selector */}
             <div>
               <label className="text-sm text-muted-foreground">{t.calc.currency}</label>
-              <div className="mt-2 inline-flex rounded-full border border-border bg-card/60 p-1">
+              <div className="mt-2 flex flex-wrap gap-1">
                 {CURRENCY_ORDER.map((code) => {
                   const active = currency === code;
                   return (
@@ -193,8 +190,8 @@ export function Calculator() {
                       key={code}
                       type="button"
                       onClick={() => setCurrency(code)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-full transition tabular-nums ${
-                        active ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                      className={`px-3 py-1.5 text-xs font-medium rounded-full border transition tabular-nums ${
+                        active ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:text-foreground bg-card/60"
                       }`}
                     >
                       {code}
@@ -257,7 +254,7 @@ export function Calculator() {
 
         <div className="relative">
           <div aria-hidden className="absolute -inset-8 bg-mesh opacity-30 blur-3xl rounded-[3rem]" />
-          <div className="relative rounded-3xl bg-card border border-border p-8 shadow-card">
+          <div className="relative rounded-3xl bg-card border border-border p-5 sm:p-8 shadow-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Sparkles className="size-3.5 text-primary" /> {t.calc.analysis}
@@ -267,7 +264,7 @@ export function Calculator() {
 
             <div className="mt-4">
               <div className="text-sm text-muted-foreground">{t.calc.saveEachMonth}</div>
-              <div className="mt-1 font-display text-6xl text-gradient leading-none">
+              <div className="mt-1 font-display text-4xl sm:text-6xl text-gradient leading-none break-all">
                 {fmtMoney(metrics.monthlyNeeded)}
               </div>
               <div className="mt-2 text-xs text-muted-foreground">

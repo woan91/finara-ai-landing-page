@@ -6,6 +6,7 @@ import { Calculator } from "@/components/finara/Calculator";
 import { CTA } from "@/components/finara/CTA";
 import { Footer } from "@/components/finara/Footer";
 import { I18nProvider } from "@/components/finara/i18n";
+import { ChatWidget } from "@/components/finara/ChatWidget";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -34,6 +35,7 @@ function Index() {
         <Calculator />
         <CTA />
         <Footer />
+        <ChatWidget />
       </main>
     </I18nProvider>
   );
