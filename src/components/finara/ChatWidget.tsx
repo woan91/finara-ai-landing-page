@@ -44,30 +44,16 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
-      const apiKey = (import.meta.env.VITE_CLAUDE_API_KEY || (globalThis as any).VITE_CLAUDE_API_KEY) as string | undefined;
-      if (!apiKey) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            text: "I'm not configured yet — please add your VITE_CLAUDE_API_KEY to get started!",
-          },
-        ]);
-        return;
-      }
-
+     
       const history = [...messages, userMsg]
         .filter((m) => m.id !== "init")
         .map((m) => ({ role: m.role, content: m.text }));
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/src/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-allow-browser": "true",
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
