@@ -120,6 +120,7 @@ type Dict = {
     blurred1Lines: string[];
     blurred2Title: string;
     blurred2Lines: string[];
+    unlockSuccess: string;
     comingSoon: string;
     comingSoonSub: string;
     emailLabel: string;
@@ -289,6 +290,7 @@ const en: Dict = {
     blurred1Lines: ["Housing & fixed costs: 52%", "Food & lifestyle: 28%", "Savings potential: 20%"],
     blurred2Title: "Personalised Action Plan",
     blurred2Lines: ["Step 1: Build 3-month emergency fund", "Step 2: Automate $200 savings on payday", "Step 3: Optimise CPF contributions"],
+    unlockSuccess: "Your analysis has been unlocked ✨",
     comingSoon: "Coming Soon: Your Personalised AI Financial Action Plan",
     comingSoonSub: "We'll notify you when your full plan is ready. Check your email.",
     emailLabel: "Email Address",
@@ -453,6 +455,7 @@ const zh: Dict = {
     blurred1Lines: ["住房及固定支出：52%", "餐饮及生活：28%", "储蓄潜力：20%"],
     blurred2Title: "个性化行动计划",
     blurred2Lines: ["第一步：建立 3 个月应急基金", "第二步：发薪日自动存入 $200", "第三步：优化公积金供款"],
+    unlockSuccess: "你的分析已解锁 ✨",
     comingSoon: "即将推出：你的个性化 AI 财务行动计划",
     comingSoonSub: "计划准备好后我们将通知你，请留意邮件。",
     emailLabel: "邮箱地址",

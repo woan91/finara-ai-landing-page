@@ -355,6 +355,7 @@ export function FinancialSnapshot() {
   const [unlockLoading, setUnlockLoading] = useState(false);
   const [unlockDone, setUnlockDone] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [submittedEmails] = useState(() => new Set<string>());
 
   const isSgUser = region === "sg" || region === "my_in_sg";
 
@@ -375,34 +376,67 @@ export function FinancialSnapshot() {
     if (unlockLoading || unlockDone) return;
     setUnlockLoading(true);
     setUnlockError(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Prevent duplicate submissions from the same email in this session
+    if (submittedEmails.has(cleanEmail)) {
+      setUnlocked(true);
+      setUnlockDone(true);
+      setUnlockLoading(false);
+      return;
+    }
+
     try {
       const supabase = getSupabaseClient();
-      if (!supabase) throw new Error("Supabase client not initialised — check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
+      if (!supabase) throw new Error("Supabase client not initialised");
       if (!result) throw new Error("No snapshot result to save");
 
       const payload = {
-        email: email.trim().toLowerCase(),
-        region,
+        email: cleanEmail,
+        region: region || null,
         age: parseInt(inputs.age) || null,
         monthly_income: parseFloat(inputs.income) || null,
         monthly_expenses: parseFloat(inputs.expenses) || null,
         current_savings: parseFloat(inputs.savings) || null,
-        main_goal: inputs.goal,
+        main_goal: inputs.goal || null,
         timeline_months: parseInt(inputs.timeline) || null,
         health_score: result.score,
         fa_interest: null as boolean | null,
       };
 
-      const { error } = await supabase.from("financial_snapshots").insert(payload);
-      if (error) throw error;
+      console.log("[Finara] inserting financial_snapshot payload:", payload);
 
-      console.log("[Finara] financial_snapshot saved successfully", { email: payload.email, score: payload.health_score });
+      const { error } = await supabase.from("financial_snapshots").insert(payload);
+
+      if (error) {
+        console.error("[Finara] insert error:", { code: error.code, message: error.message, details: error.details, hint: error.hint });
+
+        // Graceful fallback: retry with minimal fields only
+        console.log("[Finara] retrying with minimal payload…");
+        const { error: fallbackError } = await supabase.from("financial_snapshots").insert({
+          email: cleanEmail,
+          region: region || null,
+          main_goal: inputs.goal || null,
+          health_score: result.score,
+        });
+
+        if (fallbackError) {
+          console.error("[Finara] fallback insert also failed:", fallbackError.message);
+          throw fallbackError;
+        }
+        console.log("[Finara] fallback insert succeeded for", cleanEmail);
+      } else {
+        console.log("[Finara] financial_snapshot saved successfully", { email: cleanEmail, score: payload.health_score });
+      }
+
+      submittedEmails.add(cleanEmail);
       setUnlocked(true);
       setUnlockDone(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("[Finara] financial_snapshot insert failed:", msg);
-      setUnlockError(lang === "zh" ? "保存失败，请稍后再试。" : "Something went wrong saving your results. Please try again.");
+      console.error("[Finara] financial_snapshot save failed (all attempts):", msg);
+      setUnlockError(lang === "zh" ? "保存失败，请稍后再试。" : "Something went wrong. Please try again.");
     } finally {
       setUnlockLoading(false);
     }
@@ -621,6 +655,9 @@ export function FinancialSnapshot() {
 
                 {unlockDone ? (
                   <div className="animate-fade-up space-y-4">
+                    <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
+                      <div className="text-base font-semibold text-emerald-800">{s.unlockSuccess}</div>
+                    </div>
                     <div className="rounded-2xl bg-secondary p-5 text-center">
                       <div className="text-base font-semibold">{s.comingSoon}</div>
                       <div className="text-sm text-muted-foreground mt-1">{s.comingSoonSub}</div>
