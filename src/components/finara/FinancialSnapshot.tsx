@@ -534,39 +534,26 @@ export function FinancialSnapshot() {
         fa_interest: null as boolean | null,
       };
 
-      const INSERT_TABLE = "financial_snapshots";
-      console.log("[Finara] inserting into table:", INSERT_TABLE, "payload:", payload);
+      console.log("INSERTING_TO_TABLE: financial_snapshots");
+      console.log("[Finara] insert payload:", payload);
 
-      const { error } = await supabase.from(INSERT_TABLE).insert(payload);
+      const { error } = await supabase.from("financial_snapshots").insert(payload);
 
       if (error) {
-        console.error("[Finara] insert error:", { code: error.code, message: error.message, details: error.details, hint: error.hint });
-
-        // Graceful fallback: retry with minimal fields only
-        console.log("[Finara] retrying with minimal payload…");
-        const { error: fallbackError } = await supabase.from("financial_snapshots").insert({
-          email: cleanEmail,
-          region: region || null,
-          main_goal: inputs.goal || null,
-          health_score: result.score,
-        });
-
-        if (fallbackError) {
-          console.error("[Finara] fallback insert also failed:", fallbackError.message);
-          throw fallbackError;
-        }
-        console.log("[Finara] fallback insert succeeded for", cleanEmail);
-      } else {
-        console.log("[Finara] financial_snapshot saved successfully", { email: cleanEmail, score: payload.health_score });
+        const errMsg = `Supabase insert error [${error.code}]: ${error.message}${error.hint ? " — " + error.hint : ""}`;
+        console.error("[Finara] insert error:", errMsg, error);
+        throw new Error(errMsg);
       }
+
+      console.log("[Finara] insert success for", cleanEmail, "score:", payload.health_score);
 
       submittedEmails.add(cleanEmail);
       setUnlocked(true);
       setUnlockDone(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("[Finara] financial_snapshot save failed (all attempts):", msg);
-      setUnlockError(lang === "zh" ? "保存失败，请稍后再试。" : "Something went wrong. Please try again.");
+      console.error("[Finara] financial_snapshot save failed:", msg);
+      setUnlockError(msg);
     } finally {
       setUnlockLoading(false);
     }

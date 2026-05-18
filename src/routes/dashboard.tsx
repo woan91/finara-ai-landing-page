@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getSupabaseClient } from "@/lib/supabase";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -215,25 +215,43 @@ function DashboardPage() {
     if (!authed) return;
     setLoading(true);
     setFetchError(null);
-    const supabase = getSupabaseClient();
-    if (!supabase) {
-      setFetchError("Supabase client not configured.");
+
+    const TABLE = "financial_snapshots";
+    console.log("DASHBOARD_READING_FROM_TABLE:", TABLE);
+
+    // Create a fresh client directly — avoids singleton cache issues in SSR env
+    const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? "";
+    const rawKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? "";
+    console.log("[Dashboard] env check:", { hasUrl: rawUrl.length > 0, hasKey: rawKey.length > 0 });
+
+    if (!rawUrl || !rawKey) {
+      setFetchError("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables.");
       setLoading(false);
       return;
     }
-    const TABLE = "financial_snapshots";
-    console.log("[Dashboard] querying table:", TABLE);
+
+    let supabase: SupabaseClient;
+    try {
+      const url = rawUrl.trim().replace(/\/rest\/v1\/?$/i, "").replace(/\/+$/, "");
+      supabase = createClient(url, rawKey.trim());
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[Dashboard] createClient failed:", msg);
+      setFetchError("Failed to initialise Supabase client: " + msg);
+      setLoading(false);
+      return;
+    }
+
     supabase
       .from(TABLE)
       .select("id,email,region,health_score,fa_interest,monthly_income,monthly_expenses,current_savings,main_goal,timeline_months,age,created_at")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        console.log("[Dashboard] query result:", { rows: data?.length ?? 0, error: error?.message ?? null });
         if (error) {
-          console.error("[Dashboard] query error:", error);
-          setFetchError(error.message);
+          console.error("[Dashboard] query error:", { code: error.code, message: error.message, details: error.details, hint: error.hint });
+          setFetchError(`Supabase error [${error.code}]: ${error.message}${error.hint ? " — " + error.hint : ""}`);
         } else {
-          console.log("[Dashboard] loaded leads:", data);
+          console.log("[Dashboard] query result:", { rows: data?.length ?? 0, data });
           setLeads((data ?? []) as Lead[]);
         }
         setLoading(false);
