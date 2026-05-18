@@ -133,6 +133,7 @@ type Dict = {
     faPrompt: string;
     faYes: string;
     faNo: string;
+    faTrustNote: string;
     faThanks: string;
   };
   cta: {
@@ -177,10 +178,9 @@ const en: Dict = {
     security: "Bank-grade security",
     trusted: "Now in Private Beta",
     trust: [
-      { label: "Private & Secure", desc: "We never sell your financial data" },
-      { label: "No bank login needed", desc: "Just enter your numbers" },
-      { label: "Built for Singapore & SEA", desc: "Designed for regional lifestyles" },
-      { label: "AI-powered insights", desc: "Clear next steps, no jargon" },
+      { label: "Private & Secure", desc: "Your financial data stays private" },
+      { label: "No bank login needed", desc: "No bank login required" },
+      { label: "Built for Singapore & SEA", desc: "Designed for Singapore & Southeast Asia" },
     ],
     phone: {
       greeting: "Good morning, Maya",
@@ -291,8 +291,8 @@ const en: Dict = {
     looksGood: "What You're Doing Well",
     needsAttention: "Financial Blind Spot",
     nextMove: "Smart Next Step",
-    unlockTitle: "Unlock Your Full AI Financial Analysis",
-    unlockSubtitle: "Enter your email to unlock personalized insights",
+    unlockTitle: "Unlock Your Personalized Money Plan",
+    unlockSubtitle: "Get deeper insights tailored to your financial situation.",
     blurred1Title: "Detailed Spending Breakdown",
     blurred1Lines: ["Housing & fixed costs: 52%", "Food & lifestyle: 28%", "Savings potential: 20%"],
     blurred2Title: "Personalised Action Plan",
@@ -305,10 +305,11 @@ const en: Dict = {
     regions: { sg: "Singapore", my_in_sg: "Malaysian working in Singapore", my: "Malaysia", id: "Indonesia", th: "Thailand", other: "Others" },
     unlockCta: "Unlock My Analysis",
     unlocking: "Saving…",
-    privacyNote: "No spam. Your data is private and never shared.",
+    privacyNote: "Your data stays private. No spam.",
     faPrompt: "Want a licensed financial consultant to review your financial situation?",
-    faYes: "Yes, I'm interested",
-    faNo: "Not now",
+    faYes: "Get a Free Financial Review",
+    faNo: "Maybe later",
+    faTrustNote: "No obligation. Speak with a licensed consultant only if you want to.",
     faThanks: "Great! A licensed consultant will reach out to you soon.",
   },
   cta: {
@@ -348,10 +349,9 @@ const zh: Dict = {
     security: "银行级安全",
     trusted: "现已进入内测阶段",
     trust: [
-      { label: "隐私与安全", desc: "我们绝不出售你的财务数据" },
-      { label: "无需银行登录", desc: "直接输入你的数字即可" },
-      { label: "专为新加坡及东南亚打造", desc: "贴合本地生活方式设计" },
-      { label: "AI 驱动的洞察", desc: "清晰的下一步，无复杂术语" },
+      { label: "隐私与安全", desc: "你的财务数据始终保密" },
+      { label: "无需银行登录", desc: "无需任何银行账户授权" },
+      { label: "专为新加坡及东南亚打造", desc: "专为新加坡及东南亚地区设计" },
     ],
     phone: {
       greeting: "早上好，Maya",
@@ -462,8 +462,8 @@ const zh: Dict = {
     looksGood: "你做得好的地方",
     needsAttention: "财务盲点",
     nextMove: "明智的下一步",
-    unlockTitle: "解锁你的完整 AI 财务分析",
-    unlockSubtitle: "输入邮箱，解锁个性化洞察",
+    unlockTitle: "解锁你的个性化财务计划",
+    unlockSubtitle: "获取根据你的财务状况量身定制的深度洞察。",
     blurred1Title: "详细支出分析",
     blurred1Lines: ["住房及固定支出：52%", "餐饮及生活：28%", "储蓄潜力：20%"],
     blurred2Title: "个性化行动计划",
@@ -476,10 +476,11 @@ const zh: Dict = {
     regions: { sg: "新加坡", my_in_sg: "在新加坡工作的马来西亚人", my: "马来西亚", id: "印度尼西亚", th: "泰国", other: "其他地区" },
     unlockCta: "解锁我的分析",
     unlocking: "保存中…",
-    privacyNote: "不会发送垃圾邮件，你的数据绝不共享。",
+    privacyNote: "你的数据始终保密，绝不发送垃圾邮件。",
     faPrompt: "希望持牌财务顾问为你审查财务状况吗？",
-    faYes: "是的，我感兴趣",
-    faNo: "暂时不需要",
+    faYes: "获取免费财务审查",
+    faNo: "也许以后",
+    faTrustNote: "无任何义务。仅在你有意愿时与持牌顾问交流。",
     faThanks: "太好了！持牌顾问将尽快与你联系。",
   },
   cta: {

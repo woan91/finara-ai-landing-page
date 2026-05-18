@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck, Star, Lock, ChartBar as BarChart2, Globe as Globe2, Sparkles } from "lucide-react";
+import { ArrowRight, ShieldCheck, Star, Lock, ChartBar as BarChart2, Globe as Globe2 } from "lucide-react";
 import { useI18n } from "./i18n";
 
 export function Hero() {
@@ -55,12 +55,11 @@ const TRUST_ICONS = [
   <Lock className="size-3.5" />,
   <BarChart2 className="size-3.5" />,
   <Globe2 className="size-3.5" />,
-  <Sparkles className="size-3.5" />,
 ];
 
 function TrustRow({ items }: { items: { label: string; desc: string }[] }) {
   return (
-    <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-4">
+    <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-x-5 gap-y-3">
       {items.map(({ label, desc }, i) => (
         <div key={label} className="flex items-start gap-2">
           <span className="mt-0.5 shrink-0 text-primary">{TRUST_ICONS[i]}</span>

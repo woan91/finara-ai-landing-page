@@ -298,15 +298,15 @@ function InsightCard({
   }[tone];
 
   return (
-    <div className={`rounded-2xl border p-4 ${colors.bg}`}>
-      <div className={`flex items-center gap-2 text-sm font-semibold mb-2 ${colors.icon}`}>
+    <div className={`rounded-xl border p-3 ${colors.bg}`}>
+      <div className={`flex items-center gap-1.5 text-xs font-semibold mb-2 ${colors.icon}`}>
         {icon}
         {title}
       </div>
-      <ul className="space-y-1.5">
+      <ul className="space-y-1">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-            <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${colors.dot}`} />
+          <li key={i} className="flex items-start gap-1.5 text-xs text-foreground/80 leading-snug">
+            <span className={`mt-1.5 size-1 rounded-full shrink-0 ${colors.dot}`} />
             {item}
           </li>
         ))}
@@ -613,7 +613,7 @@ export function FinancialSnapshot() {
             </div>
 
             {/* Three insight cards */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3">
               <InsightCard
                 icon={<CheckCircle2 className="size-4" />}
                 title={s.looksGood}
@@ -681,6 +681,7 @@ export function FinancialSnapshot() {
                             {s.faNo}
                           </button>
                         </div>
+                        <p className="text-[11px] text-muted-foreground mt-2 text-center">{s.faTrustNote}</p>
                       </div>
                     )}
 
@@ -728,7 +729,10 @@ export function FinancialSnapshot() {
                     {unlockError && (
                       <p className="text-center text-xs text-destructive">{unlockError}</p>
                     )}
-                    <p className="text-center text-xs text-muted-foreground">{s.privacyNote}</p>
+                    <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                      <ShieldCheck className="size-3 text-primary shrink-0" />
+                      <span>{s.privacyNote}</span>
+                    </div>
                   </form>
                 )}
               </div>
