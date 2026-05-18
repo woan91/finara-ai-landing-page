@@ -7,6 +7,7 @@ import { CTA } from "@/components/finara/CTA";
 import { Footer } from "@/components/finara/Footer";
 import { I18nProvider } from "@/components/finara/i18n";
 import { ChatWidget } from "@/components/finara/ChatWidget";
+import { FinancialSnapshot } from "@/components/finara/FinancialSnapshot";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -31,6 +32,7 @@ function Index() {
       <main className="min-h-screen">
         <Nav />
         <Hero />
+        <FinancialSnapshot />
         <Features />
         <Calculator />
         <CTA />

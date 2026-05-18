@@ -94,6 +94,44 @@ type Dict = {
       automate: (a: string) => string;
     };
   };
+  snapshot: {
+    eyebrow: string;
+    titleA: string;
+    titleB: string;
+    subtitle: string;
+    age: string;
+    income: string;
+    expenses: string;
+    currentSavings: string;
+    goalLabel: string;
+    timelineLabel: string;
+    months: string;
+    cta: string;
+    goals: { emergency: string; travel: string; house: string; retirement: string; investment: string };
+    analysisLabel: string;
+    scoreLabel: string;
+    looksGood: string;
+    needsAttention: string;
+    nextMove: string;
+    unlockTitle: string;
+    unlockSubtitle: string;
+    blurred1Title: string;
+    blurred1Lines: string[];
+    blurred2Title: string;
+    blurred2Lines: string[];
+    comingSoon: string;
+    comingSoonSub: string;
+    emailLabel: string;
+    regionLabel: string;
+    regions: { sg: string; my_in_sg: string; my: string; id: string; th: string; other: string };
+    unlockCta: string;
+    unlocking: string;
+    privacyNote: string;
+    faPrompt: string;
+    faYes: string;
+    faNo: string;
+    faThanks: string;
+  };
   cta: {
     eyebrow: string;
     titleA: string;
@@ -225,6 +263,44 @@ const en: Dict = {
       automate: (a) => `Try quietly automating ${a} on payday — letting it happen in the background takes the willpower out of saving.`,
     },
   },
+  snapshot: {
+    eyebrow: "Free · Takes 1 minute",
+    titleA: "Get Your ",
+    titleB: "Financial Snapshot",
+    subtitle: "See where you stand financially in just 1 minute.",
+    age: "Age",
+    income: "Monthly Income",
+    expenses: "Monthly Expenses",
+    currentSavings: "Current Savings",
+    goalLabel: "Main Goal",
+    timelineLabel: "Timeline:",
+    months: "months",
+    cta: "Get My Financial Snapshot",
+    goals: { emergency: "Emergency Fund", travel: "Travel", house: "House / Property", retirement: "Retirement", investment: "Investment" },
+    analysisLabel: "Finara AI analysis",
+    scoreLabel: "Financial Health Score",
+    looksGood: "What Looks Good",
+    needsAttention: "What Needs Attention",
+    nextMove: "Suggested Next Move",
+    unlockTitle: "Unlock Your Full AI Financial Analysis",
+    unlockSubtitle: "Enter your email to unlock personalized insights",
+    blurred1Title: "Detailed Spending Breakdown",
+    blurred1Lines: ["Housing & fixed costs: 52%", "Food & lifestyle: 28%", "Savings potential: 20%"],
+    blurred2Title: "Personalised Action Plan",
+    blurred2Lines: ["Step 1: Build 3-month emergency fund", "Step 2: Automate $200 savings on payday", "Step 3: Optimise CPF contributions"],
+    comingSoon: "Coming Soon: Your Personalised AI Financial Action Plan",
+    comingSoonSub: "We'll notify you when your full plan is ready. Check your email.",
+    emailLabel: "Email Address",
+    regionLabel: "Your Region",
+    regions: { sg: "Singapore", my_in_sg: "Malaysian working in Singapore", my: "Malaysia", id: "Indonesia", th: "Thailand", other: "Others" },
+    unlockCta: "Unlock My Analysis",
+    unlocking: "Saving…",
+    privacyNote: "No spam. Your data is private and never shared.",
+    faPrompt: "Want a licensed financial consultant to review your financial situation?",
+    faYes: "Yes, I'm interested",
+    faNo: "Not now",
+    faThanks: "Great! A licensed consultant will reach out to you soon.",
+  },
   cta: {
     eyebrow: "Join the waitlist",
     titleA: "Build a better",
@@ -350,6 +426,44 @@ const zh: Dict = {
       starter: (b) => `先从 ${b} 的小缓冲开始——小小的胜利会带来真实的信心，节奏会自然形成。`,
       automate: (a) => `试着在发薪日悄悄自动存入 ${a}——让它在背景里发生，省下意志力，也省下挣扎。`,
     },
+  },
+  snapshot: {
+    eyebrow: "免费 · 仅需 1 分钟",
+    titleA: "获取你的 ",
+    titleB: "财务快照",
+    subtitle: "1 分钟了解你的财务状况。",
+    age: "年龄",
+    income: "每月收入",
+    expenses: "每月支出",
+    currentSavings: "当前储蓄",
+    goalLabel: "主要目标",
+    timelineLabel: "时间线：",
+    months: "个月",
+    cta: "获取我的财务快照",
+    goals: { emergency: "应急基金", travel: "旅行", house: "购房 / 置产", retirement: "退休", investment: "投资" },
+    analysisLabel: "Finara AI 分析",
+    scoreLabel: "财务健康评分",
+    looksGood: "做得好的地方",
+    needsAttention: "需要关注",
+    nextMove: "建议下一步",
+    unlockTitle: "解锁你的完整 AI 财务分析",
+    unlockSubtitle: "输入邮箱，解锁个性化洞察",
+    blurred1Title: "详细支出分析",
+    blurred1Lines: ["住房及固定支出：52%", "餐饮及生活：28%", "储蓄潜力：20%"],
+    blurred2Title: "个性化行动计划",
+    blurred2Lines: ["第一步：建立 3 个月应急基金", "第二步：发薪日自动存入 $200", "第三步：优化公积金供款"],
+    comingSoon: "即将推出：你的个性化 AI 财务行动计划",
+    comingSoonSub: "计划准备好后我们将通知你，请留意邮件。",
+    emailLabel: "邮箱地址",
+    regionLabel: "所在地区",
+    regions: { sg: "新加坡", my_in_sg: "在新加坡工作的马来西亚人", my: "马来西亚", id: "印度尼西亚", th: "泰国", other: "其他地区" },
+    unlockCta: "解锁我的分析",
+    unlocking: "保存中…",
+    privacyNote: "不会发送垃圾邮件，你的数据绝不共享。",
+    faPrompt: "希望持牌财务顾问为你审查财务状况吗？",
+    faYes: "是的，我感兴趣",
+    faNo: "暂时不需要",
+    faThanks: "太好了！持牌顾问将尽快与你联系。",
   },
   cta: {
     eyebrow: "加入候补名单",
