@@ -221,14 +221,19 @@ function DashboardPage() {
       setLoading(false);
       return;
     }
+    const TABLE = "financial_snapshots";
+    console.log("[Dashboard] querying table:", TABLE);
     supabase
-      .from("financial_snapshots")
+      .from(TABLE)
       .select("id,email,region,health_score,fa_interest,monthly_income,monthly_expenses,current_savings,main_goal,timeline_months,age,created_at")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
+        console.log("[Dashboard] query result:", { rows: data?.length ?? 0, error: error?.message ?? null });
         if (error) {
+          console.error("[Dashboard] query error:", error);
           setFetchError(error.message);
         } else {
+          console.log("[Dashboard] loaded leads:", data);
           setLeads((data ?? []) as Lead[]);
         }
         setLoading(false);

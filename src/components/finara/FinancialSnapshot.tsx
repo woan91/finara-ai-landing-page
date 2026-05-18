@@ -534,9 +534,10 @@ export function FinancialSnapshot() {
         fa_interest: null as boolean | null,
       };
 
-      console.log("[Finara] inserting financial_snapshot payload:", payload);
+      const INSERT_TABLE = "financial_snapshots";
+      console.log("[Finara] inserting into table:", INSERT_TABLE, "payload:", payload);
 
-      const { error } = await supabase.from("financial_snapshots").insert(payload);
+      const { error } = await supabase.from(INSERT_TABLE).insert(payload);
 
       if (error) {
         console.error("[Finara] insert error:", { code: error.code, message: error.message, details: error.details, hint: error.hint });
