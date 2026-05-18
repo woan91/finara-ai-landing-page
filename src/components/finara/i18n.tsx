@@ -14,6 +14,7 @@ type Dict = {
     secondaryCta: string;
     security: string;
     trusted: string;
+    trust: { label: string; desc: string }[];
     phone: {
       greeting: string;
       goal: string;
@@ -166,15 +167,21 @@ const en: Dict = {
   nav: { features: "Features", planner: "Planner", getStarted: "Get started", waitlist: "Join waitlist" },
   hero: {
     badge: "Now in private beta · Built for global earners",
-    title1: "Your ",
-    title2: "AI Financial",
-    titleEnd: "Companion.",
+    title1: "Know if you're ",
+    title2: "financially on track",
+    titleEnd: " — in 1 minute.",
     subtitle:
-      "Plan savings goals, improve financial habits, and build a better future with AI — designed for young professionals and overseas workers.",
-    primaryCta: "Start planning free",
+      "Get your Financial Health Score, uncover blind spots, and receive personalised next steps — in under 60 seconds.",
+    primaryCta: "Get My Financial Snapshot",
     secondaryCta: "See it in action",
     security: "Bank-grade security",
     trusted: "Now in Private Beta",
+    trust: [
+      { label: "Private & Secure", desc: "We never sell your financial data" },
+      { label: "No bank login needed", desc: "Just enter your numbers" },
+      { label: "Built for Singapore & SEA", desc: "Designed for regional lifestyles" },
+      { label: "AI-powered insights", desc: "Clear next steps, no jargon" },
+    ],
     phone: {
       greeting: "Good morning, Maya",
       goal: "Tokyo Trip Goal",
@@ -332,14 +339,20 @@ const zh: Dict = {
   nav: { features: "功能", planner: "规划器", getStarted: "立即开始", waitlist: "加入候补名单" },
   hero: {
     badge: "内测中 · 为全球工作者打造",
-    title1: "你的 ",
-    title2: "AI 财务",
-    titleEnd: "陪伴助手。",
-    subtitle: "用 AI 规划储蓄目标、改善理财习惯、构建更好的未来——专为年轻职场人与海外工作者设计。",
-    primaryCta: "免费开始规划",
+    title1: "1 分钟了解你的",
+    title2: "财务是否走在正轨",
+    titleEnd: "。",
+    subtitle: "获取财务健康评分、发现盲点，并获得个性化的下一步建议——60 秒以内完成。",
+    primaryCta: "获取我的财务快照",
     secondaryCta: "查看演示",
     security: "银行级安全",
     trusted: "现已进入内测阶段",
+    trust: [
+      { label: "隐私与安全", desc: "我们绝不出售你的财务数据" },
+      { label: "无需银行登录", desc: "直接输入你的数字即可" },
+      { label: "专为新加坡及东南亚打造", desc: "贴合本地生活方式设计" },
+      { label: "AI 驱动的洞察", desc: "清晰的下一步，无复杂术语" },
+    ],
     phone: {
       greeting: "早上好，Maya",
       goal: "东京旅行目标",

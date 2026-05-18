@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, ShieldCheck, Star, Lock, ChartBar as BarChart2, Globe as Globe2, Sparkles } from "lucide-react";
 import { useI18n } from "./i18n";
 
 export function Hero() {
@@ -15,15 +15,22 @@ export function Hero() {
             <span className="truncate">{t.hero.badge}</span>
           </div>
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
-            {t.hero.title1}<span className="text-gradient italic">{t.hero.title2}</span><br />
-            {t.hero.titleEnd}
+            {t.hero.title1}<span className="text-gradient italic">{t.hero.title2}</span>
+            {t.hero.titleEnd && <><br />{t.hero.titleEnd}</>}
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl">
             {t.hero.subtitle}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#cta" className="group inline-flex items-center gap-2 rounded-full bg-primary-gradient text-primary-foreground px-6 py-3.5 text-sm font-medium shadow-glow hover:scale-[1.02] transition-transform">
+            <a
+              href="#snapshot"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("snapshot")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="group inline-flex items-center gap-2 rounded-full bg-primary-gradient text-primary-foreground px-6 py-3.5 text-sm font-medium shadow-glow hover:scale-[1.02] transition-transform"
+            >
               {t.hero.primaryCta}
               <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
             </a>
@@ -32,11 +39,8 @@ export function Hero() {
             </a>
           </div>
 
-          <div className="mt-10 flex items-center gap-6 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2"><ShieldCheck className="size-4 text-primary" /> {t.hero.security}</div>
-            <div>·</div>
-            <div>{t.hero.trusted}</div>
-          </div>
+          {/* Trust row */}
+          <TrustRow items={t.hero.trust} />
         </div>
 
         <div className="lg:col-span-5 animate-fade-up delay-200">
@@ -44,6 +48,29 @@ export function Hero() {
         </div>
       </div>
     </section>
+  );
+}
+
+const TRUST_ICONS = [
+  <Lock className="size-3.5" />,
+  <BarChart2 className="size-3.5" />,
+  <Globe2 className="size-3.5" />,
+  <Sparkles className="size-3.5" />,
+];
+
+function TrustRow({ items }: { items: { label: string; desc: string }[] }) {
+  return (
+    <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-4">
+      {items.map(({ label, desc }, i) => (
+        <div key={label} className="flex items-start gap-2">
+          <span className="mt-0.5 shrink-0 text-primary">{TRUST_ICONS[i]}</span>
+          <div>
+            <div className="text-xs font-semibold text-foreground/80 leading-snug">{label}</div>
+            <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{desc}</div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
