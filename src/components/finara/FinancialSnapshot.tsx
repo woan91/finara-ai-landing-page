@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Lightbulb, Lock, ChevronDown, TrendingUp, ShieldCheck, Plane, Hop as Home, PiggyBank, ChartLine as LineChart, Sparkles } from "lucide-react";
+import { CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Lightbulb, Lock, ChevronDown, TrendingUp, ShieldCheck, Plane, Hop as Home, PiggyBank, ChartLine as LineChart, Sparkles, Target, Star } from "lucide-react";
 import { useI18n } from "./i18n";
 import { getSupabaseClient } from "@/lib/supabase";
 
@@ -323,6 +323,135 @@ function BlurredCard({ title, lines }: { title: string; lines: string[] }) {
       {lines.map((l, i) => (
         <p key={i} className="text-sm text-muted-foreground mb-1">{l}</p>
       ))}
+    </div>
+  );
+}
+
+// ─── Action Plan Engine ───────────────────────────────────────────────────────
+
+interface ActionPoint {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}
+
+const GOAL_AMOUNTS: Record<GoalKey, (income: number, expenses: number) => number> = {
+  emergency: (_i, e) => e * 3,
+  travel: (i) => i * 3,
+  house: (i) => i * 24,
+  retirement: (i) => i * 120,
+  investment: (i) => i * 10,
+};
+
+function buildActionPlan(inputs: Inputs, lang: "en" | "zh"): ActionPoint[] {
+  const income = Math.max(1, parseFloat(inputs.income) || 0);
+  const expenses = Math.max(0, parseFloat(inputs.expenses) || 0);
+  const savings = Math.max(0, parseFloat(inputs.savings) || 0);
+  const timeline = Math.max(1, parseInt(inputs.timeline) || 12);
+  const age = parseInt(inputs.age) || 25;
+  const goal = inputs.goal;
+
+  const surplus = income - expenses;
+  const savingsRate = income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
+  const efMonths = expenses > 0 ? savings / expenses : 0;
+  const goalAmt = GOAL_AMOUNTS[goal](income, expenses);
+  const monthsNeeded = surplus > 0 ? Math.ceil(goalAmt / surplus) : Infinity;
+  const fmt = (n: number) => Math.round(n).toLocaleString();
+
+  const isEn = lang === "en";
+
+  // Point 1 — Emergency Fund
+  let efTitle: string;
+  let efBody: string;
+  if (efMonths < 3) {
+    efTitle = isEn ? "Build Your Emergency Fund" : "建立紧急备用金";
+    efBody = isEn
+      ? `Your emergency fund needs attention. Based on your $${fmt(expenses)}/month spending, aim for $${fmt(expenses * 3)} as your safety net. You currently have ${efMonths.toFixed(1)} months covered.`
+      : `你的紧急备用金还需要加强。以你目前每月 $${fmt(expenses)} 的支出，建议目标是 $${fmt(expenses * 3)}。目前你有 ${efMonths.toFixed(1)} 个月的保障。`;
+  } else {
+    efTitle = isEn ? "Emergency Fund: Solid" : "紧急备用金：稳健";
+    efBody = isEn
+      ? `Your emergency fund is solid at ${efMonths.toFixed(1)} months of coverage. You're ahead of most people your age.`
+      : `你的紧急备用金很稳健，已覆盖 ${efMonths.toFixed(1)} 个月支出，比同龄人做得好。`;
+  }
+
+  // Point 2 — Savings Rate
+  let srTitle: string;
+  let srBody: string;
+  if (savingsRate < 20) {
+    srTitle = isEn ? "Grow Your Savings Rate" : "提升储蓄率";
+    srBody = isEn
+      ? `Your current savings rate of ${savingsRate}% has room to grow. Even increasing by 5% monthly could make a significant difference over time.`
+      : `你目前 ${savingsRate}% 的储蓄率还有提升空间。每月多储蓄 5%，长期影响会很大。`;
+  } else if (savingsRate < 40) {
+    srTitle = isEn ? "Savings Rate: Healthy" : "储蓄率：良好";
+    srBody = isEn
+      ? `Saving ${savingsRate}% of your income puts you in a healthy position. Consistency is your biggest advantage now.`
+      : `储蓄 ${savingsRate}% 的收入是很好的习惯，坚持下去就是你最大的优势。`;
+  } else {
+    srTitle = isEn ? "Savings Rate: Impressive" : "储蓄率：卓越";
+    srBody = isEn
+      ? `Saving ${savingsRate}% of your income is impressive. You're building serious long-term wealth.`
+      : `储蓄 ${savingsRate}% 的收入非常出色，你正在为未来打下坚实基础。`;
+  }
+
+  // Point 3 — Goal Timeline
+  const goalLabel = isEn
+    ? { emergency: "Emergency Fund", travel: "Travel", house: "House / Property", retirement: "Retirement", investment: "Investment" }[goal]
+    : { emergency: "应急基金", travel: "旅行", house: "购房", retirement: "退休", investment: "投资" }[goal];
+
+  let gtTitle: string;
+  let gtBody: string;
+  if (isFinite(monthsNeeded) && timeline < monthsNeeded * 0.8) {
+    gtTitle = isEn ? "Adjust Your Timeline" : "调整你的时间目标";
+    gtBody = isEn
+      ? `Your ${timeline}-month timeline for ${goalLabel} is ambitious. A more comfortable pace would be around ${monthsNeeded} months. Steady progress beats rushing.`
+      : `你 ${timeline} 个月的${goalLabel}目标有些激进。更舒适的节奏大约是 ${monthsNeeded} 个月，稳步前进比冲刺更有效。`;
+  } else {
+    gtTitle = isEn ? "Timeline: On Track" : "时间规划：进度良好";
+    gtBody = isEn
+      ? `Your timeline looks realistic. At your current pace, ${goalLabel} is achievable within ${timeline} months.`
+      : `你的时间规划很合理，按目前进度，${goalLabel}目标在 ${timeline} 个月内是可以实现的。`;
+  }
+
+  // Point 4 — Age Insight
+  let ageTitle: string;
+  let ageBody: string;
+  if (age < 30) {
+    ageTitle = isEn ? "Time Is Your Superpower" : "时间是你的超能力";
+    ageBody = isEn
+      ? "Starting your financial journey before 30 gives you a powerful compounding advantage. Time is your most valuable financial asset right now."
+      : "30 岁前开始规划财务，复利效应会是你最强大的武器。时间就是你现在最宝贵的资产。";
+  } else if (age < 45) {
+    ageTitle = isEn ? "Prime Wealth-Building Years" : "财富积累黄金期";
+    ageBody = isEn
+      ? "Your 30s and 40s are prime wealth-building years. Focus on consistent savings and eliminating high-interest debt."
+      : "30 至 45 岁是财富积累的黄金期，专注于稳定储蓄和减少高息负债。";
+  } else {
+    ageTitle = isEn ? "Protect & Grow" : "守护与增长并重";
+    ageBody = isEn
+      ? "At this stage, protecting what you've built is as important as growing it. Focus on stable assets and retirement readiness."
+      : "这个阶段，保护现有财富和增值同样重要，专注于稳健资产和退休规划。";
+  }
+
+  return [
+    { icon: <ShieldCheck className="size-4" />, title: efTitle, body: efBody },
+    { icon: <TrendingUp className="size-4" />, title: srTitle, body: srBody },
+    { icon: <Target className="size-4" />, title: gtTitle, body: gtBody },
+    { icon: <Star className="size-4" />, title: ageTitle, body: ageBody },
+  ];
+}
+
+function ActionPlanCard({ icon, title, body }: ActionPoint) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 flex items-start gap-3">
+      <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <div>
+        <div className="text-xs font-semibold text-foreground mb-1">{title}</div>
+        <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>
+      </div>
     </div>
   );
 }
@@ -658,9 +787,16 @@ export function FinancialSnapshot() {
                     <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
                       <div className="text-base font-semibold text-emerald-800">{s.unlockSuccess}</div>
                     </div>
-                    <div className="rounded-2xl bg-secondary p-5 text-center">
-                      <div className="text-base font-semibold">{s.comingSoon}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{s.comingSoonSub}</div>
+
+                    {/* Personalized action plan */}
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-3">{s.comingSoon}</p>
+                      <p className="text-xs text-muted-foreground mb-4">{s.actionPlanHeader}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {buildActionPlan(inputs, lang).map((pt, i) => (
+                          <ActionPlanCard key={i} {...pt} />
+                        ))}
+                      </div>
                     </div>
 
                     {/* FA interest — SG only */}
