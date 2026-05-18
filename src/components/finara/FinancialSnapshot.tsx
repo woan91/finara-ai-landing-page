@@ -21,12 +21,14 @@ interface SnapshotResult {
   score: number;
   scoreLabel: string;
   scoreColor: string;
+  scoreInterpretation: string;
   looks_good: string[];
   needs_attention: string[];
   next_move: string[];
   timeline_msg: string;
   realistic_months: [number, number] | null;
   on_track: boolean;
+  reassurance: string;
 }
 
 // ─── Score Engine ────────────────────────────────────────────────────────────
@@ -72,18 +74,40 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
 
   const score = Math.round(rateScore + efScore + goalScore);
 
-  // ── Score label ──────────────────────────────────────────────────────────
+  // ── Score label & interpretation ─────────────────────────────────────────
   let scoreLabel: string;
   let scoreColor: string;
-  if (score >= 75) {
-    scoreLabel = lang === "zh" ? "财务状况强健" : "Strong";
+  let scoreInterpretation: string;
+  if (score >= 90) {
+    scoreLabel = lang === "zh" ? "卓越" : "Excellent";
+    scoreColor = "oklch(0.48 0.17 165)";
+    scoreInterpretation = lang === "zh"
+      ? "出色——你正在建立强劲的财务动力。"
+      : "Excellent — you're building strong financial momentum.";
+  } else if (score >= 75) {
+    scoreLabel = lang === "zh" ? "稳健" : "Strong";
     scoreColor = "oklch(0.55 0.15 165)";
-  } else if (score >= 50) {
-    scoreLabel = lang === "zh" ? "财务建设中" : "Building";
+    scoreInterpretation = lang === "zh"
+      ? "你走在一条稳健的道路上，还有一些可以优化的空间。"
+      : "You're on a solid path with a few opportunities to improve.";
+  } else if (score >= 60) {
+    scoreLabel = lang === "zh" ? "尚可" : "Okay";
+    scoreColor = "oklch(0.58 0.17 60)";
+    scoreInterpretation = lang === "zh"
+      ? "你做得还不错，但有一些值得关注的财务盲点。"
+      : "You're doing okay, but there are some financial blind spots worth fixing.";
+  } else if (score >= 40) {
+    scoreLabel = lang === "zh" ? "建设中" : "Building";
     scoreColor = "oklch(0.65 0.18 60)";
+    scoreInterpretation = lang === "zh"
+      ? "你的财务状况或许比它应有的更让人感到压力。"
+      : "Your finances may feel more stressful than they need to be.";
   } else {
     scoreLabel = lang === "zh" ? "需要关注" : "Needs Attention";
     scoreColor = "oklch(0.6 0.22 25)";
+    scoreInterpretation = lang === "zh"
+      ? "一旦发生意外，你的财务缓冲可能不够充足。"
+      : "You may be financially vulnerable if something unexpected happens.";
   }
 
   // ── Insight generation ────────────────────────────────────────────────────
@@ -91,48 +115,118 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
   const needs_attention: string[] = [];
   const next_move: string[] = [];
 
+  const savingsRateRounded = Math.round(savingsRate);
+  const efDays = Math.round(efMonths * 30);
+  const fivePct = Math.round(income * 0.05);
+
   if (lang === "en") {
-    // Looks good
-    if (savingsRate >= 20) looks_good.push("Healthy savings habit — you're saving 20%+ of your income");
-    else if (savingsRate >= 10) looks_good.push("You've started building a savings habit");
-    if (efMonths >= 3) looks_good.push("You have some emergency cushion to fall back on");
-    if (disposable > 0) looks_good.push("Your income covers your expenses — a strong foundation");
-    if (age < 30) looks_good.push("Starting early gives you a massive compounding advantage");
-    if (looks_good.length === 0) looks_good.push("You've taken the first step — awareness is the beginning of change");
+    // What You're Doing Well
+    if (savingsRate >= 20) {
+      looks_good.push(`You're saving ${savingsRateRounded}% of your income — that consistency gives you a real long-term advantage.`);
+    } else if (savingsRate >= 10) {
+      looks_good.push(`You're saving ${savingsRateRounded}% of your income — a meaningful start that can grow with small nudges.`);
+    }
+    if (efMonths >= 3) {
+      looks_good.push(`Your savings can cover about ${Math.round(efMonths)} months of expenses — that's a genuine safety cushion.`);
+    }
+    if (disposable > 0 && savingsRate < 10) {
+      looks_good.push("Your spending appears controlled compared to your income, which creates room for future flexibility.");
+    }
+    if (age < 30) {
+      looks_good.push("Starting before 30 gives you a compounding advantage most people wish they had — time is your most valuable asset.");
+    }
+    if (looks_good.length === 0) {
+      looks_good.push("You've taken the first step — most people never even look at their numbers. Awareness is where change begins.");
+    }
 
-    // Needs attention
-    if (savingsRate < 10) needs_attention.push("Savings rate is below 10% — small increases will add up fast");
-    if (efMonths < 3) needs_attention.push("Emergency fund is below 3 months of expenses — priority to build this up");
-    if (disposable <= 0) needs_attention.push("Expenses are exceeding income — review and reduce spending");
-    if (monthlyNeeded > disposable * 0.8) needs_attention.push("Goal timeline may be too aggressive given current cash flow");
-    if (needs_attention.length === 0) needs_attention.push("Keep monitoring your expense-to-income ratio monthly");
+    // Financial Blind Spot
+    if (efMonths < 1) {
+      needs_attention.push(`If your income stopped today, your savings may only support around ${efDays} days of expenses.`);
+    } else if (efMonths < 3) {
+      needs_attention.push(`Your current savings cover about ${Math.round(efMonths * 30)} days of expenses — building a 3-month buffer would significantly reduce your financial risk.`);
+    }
+    if (disposable <= 0) {
+      needs_attention.push("You may be relying too heavily on future income rather than building financial breathing room.");
+    } else if (monthlyNeeded > disposable * 0.8) {
+      needs_attention.push("Your goal timeline may feel tight — pushing too hard can make saving feel like a burden rather than a habit.");
+    }
+    if (savingsRate < 10 && disposable > 0) {
+      needs_attention.push("A small shift in where your money goes each month could have a surprisingly large impact over time.");
+    }
+    if (needs_attention.length === 0) {
+      needs_attention.push("Keep monitoring your expense-to-income ratio monthly — small drifts compound quickly over time.");
+    }
 
-    // Next move
-    if (efMonths < 3) next_move.push(`Build emergency fund first — aim for ${Math.ceil(3 - efMonths)} more months of expenses`);
-    if (savingsRate < 20 && disposable > 0) next_move.push(`Increase monthly savings by ${Math.round(income * 0.05).toLocaleString()} (5% of income)`);
-    if (disposable <= 0) next_move.push("Reduce monthly expenses by at least 10% — start with discretionary spending");
-    if (realMonths > timeline * 1.2 && isFinite(realMonths)) next_move.push(`Consider extending your timeline to ${Math.ceil(realMonths)} months for a comfortable pace`);
-    if (next_move.length === 0) next_move.push("Automate your savings on payday so it happens before you spend");
+    // Smart Next Step
+    if (efMonths < 3 && disposable > 0) {
+      next_move.push(`If you increase savings by just $${fivePct.toLocaleString()}/month, your emergency fund could be fully built in ${Math.ceil((expenses * 3 - savings) / fivePct)} months.`);
+    }
+    if (savingsRate < 20 && disposable > 0 && efMonths >= 3) {
+      next_move.push(`A small reduction in discretionary spending of around $${fivePct.toLocaleString()}/month could speed up your goal more than you expect.`);
+    }
+    if (disposable <= 0) {
+      next_move.push("Start by identifying one recurring expense to reduce — even a 5–10% cut in spending can restore positive cash flow.");
+    }
+    if (realMonths > timeline * 1.2 && isFinite(realMonths)) {
+      next_move.push(`Reaching this goal in ${timeline} months may feel stressful. A timeline closer to ${Math.ceil(realMonths) + 3} months could feel much healthier.`);
+    }
+    if (next_move.length === 0) {
+      next_move.push("Automate your savings on payday — when it happens before you spend, it stops feeling like sacrifice.");
+    }
   } else {
-    // ZH
-    if (savingsRate >= 20) looks_good.push("储蓄习惯良好——收入储蓄率达 20% 以上");
-    else if (savingsRate >= 10) looks_good.push("已开始建立储蓄习惯，良好的开始");
-    if (efMonths >= 3) looks_good.push("你有一定的应急储备，可以应对突发情况");
-    if (disposable > 0) looks_good.push("收入覆盖支出——这是坚实的财务基础");
-    if (age < 30) looks_good.push("越早开始，复利效果越显著——你的时间是最大优势");
-    if (looks_good.length === 0) looks_good.push("你已迈出第一步——自我觉察是改变的起点");
+    // ZH — What You're Doing Well
+    if (savingsRate >= 20) {
+      looks_good.push(`你储蓄了收入的 ${savingsRateRounded}%——这种一致性让你拥有真正的长期优势。`);
+    } else if (savingsRate >= 10) {
+      looks_good.push(`你的储蓄率为 ${savingsRateRounded}%——有意义的开始，通过小幅调整还能进一步提升。`);
+    }
+    if (efMonths >= 3) {
+      looks_good.push(`你的储蓄可以支撑约 ${Math.round(efMonths)} 个月的开支——这是一个真实的安全缓冲。`);
+    }
+    if (disposable > 0 && savingsRate < 10) {
+      looks_good.push("与收入相比，你的支出相对可控，这为未来的灵活性创造了空间。");
+    }
+    if (age < 30) {
+      looks_good.push("在 30 岁前起步，让你拥有大多数人梦寐以求的复利优势——时间是你最宝贵的资产。");
+    }
+    if (looks_good.length === 0) {
+      looks_good.push("你已迈出第一步——大多数人从不正视自己的财务数字。觉察是改变的开始。");
+    }
 
-    if (savingsRate < 10) needs_attention.push("储蓄率低于 10%——小幅提升会带来显著积累");
-    if (efMonths < 3) needs_attention.push("应急基金不足 3 个月支出——这是优先要建立的");
-    if (disposable <= 0) needs_attention.push("支出超过收入——需要审查并减少开支");
-    if (monthlyNeeded > disposable * 0.8) needs_attention.push("目标时间线可能过于激进，结合现有现金流来看");
-    if (needs_attention.length === 0) needs_attention.push("保持每月监控你的支出收入比");
+    // ZH — Financial Blind Spot
+    if (efMonths < 1) {
+      needs_attention.push(`如果你的收入今天停止，你的储蓄可能只能支撑约 ${efDays} 天的生活支出。`);
+    } else if (efMonths < 3) {
+      needs_attention.push(`你目前的储蓄约能维持 ${Math.round(efMonths * 30)} 天——建立 3 个月的应急缓冲将显著降低你的财务风险。`);
+    }
+    if (disposable <= 0) {
+      needs_attention.push("你可能过度依赖未来的收入，而没有构建足够的财务喘息空间。");
+    } else if (monthlyNeeded > disposable * 0.8) {
+      needs_attention.push("你的目标时间线可能感觉很紧——用力过猛会让储蓄变成负担而非习惯。");
+    }
+    if (savingsRate < 10 && disposable > 0) {
+      needs_attention.push("每月资金流向的微小调整，随着时间推移可能产生出乎意料的巨大影响。");
+    }
+    if (needs_attention.length === 0) {
+      needs_attention.push("坚持每月监控你的收支比——微小的漂移随时间会快速复利积累。");
+    }
 
-    if (efMonths < 3) next_move.push(`优先建立应急基金——目标再存 ${Math.ceil(3 - efMonths)} 个月的支出`);
-    if (savingsRate < 20 && disposable > 0) next_move.push(`每月多储蓄收入的 5%（约 ${Math.round(income * 0.05).toLocaleString()}）`);
-    if (disposable <= 0) next_move.push("将每月支出减少至少 10%——从非必要消费开始");
-    if (realMonths > timeline * 1.2 && isFinite(realMonths)) next_move.push(`考虑将目标时间延长至约 ${Math.ceil(realMonths)} 个月，以更舒适的节奏前进`);
-    if (next_move.length === 0) next_move.push("在发薪日自动转入储蓄，让储蓄在消费前先发生");
+    // ZH — Smart Next Step
+    if (efMonths < 3 && disposable > 0) {
+      next_move.push(`每月多储蓄 ${fivePct.toLocaleString()} 元，你的应急基金可在约 ${Math.ceil((expenses * 3 - savings) / fivePct)} 个月内建立完成。`);
+    }
+    if (savingsRate < 20 && disposable > 0 && efMonths >= 3) {
+      next_move.push(`每月削减约 ${fivePct.toLocaleString()} 元的非必要支出，对目标进度的加速效果会超出你的预期。`);
+    }
+    if (disposable <= 0) {
+      needs_attention.push("从识别一项可减少的固定支出开始——即使减少 5–10%，也能恢复正向现金流。");
+    }
+    if (realMonths > timeline * 1.2 && isFinite(realMonths)) {
+      next_move.push(`在 ${timeline} 个月内实现这个目标可能会感到有压力。将时间线调整到约 ${Math.ceil(realMonths) + 3} 个月，节奏会舒适许多。`);
+    }
+    if (next_move.length === 0) {
+      next_move.push("在发薪日自动转入储蓄——当储蓄在消费前先发生，它就不再感觉像是牺牲。");
+    }
   }
 
   // ── Timeline reality check ───────────────────────────────────────────────
@@ -142,31 +236,37 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
 
   if (disposable <= 0) {
     timeline_msg = lang === "zh"
-      ? "目前支出超过收入，在实现任何目标前需先平衡收支。"
-      : "Your expenses currently exceed income. Balancing your budget is the first step before any goal is reachable.";
+      ? "目前支出超过收入。先平衡收支，目标自然会变得触手可及。"
+      : "Your expenses currently exceed income. Balancing your budget is the first step — once that's done, goals become reachable.";
   } else if (on_track) {
     timeline_msg = lang === "zh"
-      ? `按照目前的节奏，你有望在 ${timeline} 个月内达成这个目标。`
-      : `You are on track to achieve this goal within your ${timeline}-month timeline.`;
+      ? `你出乎意料地走在正轨上——一致性比完美更重要。`
+      : "You're surprisingly on track — consistency matters more than perfection.";
   } else if (isFinite(realMonths)) {
-    const lo = Math.ceil(realMonths * 0.9);
-    const hi = Math.ceil(realMonths * 1.1);
+    const lo = Math.ceil(realMonths);
+    const hi = lo + 3;
     realistic_months = [lo, hi];
     timeline_msg = lang === "zh"
-      ? `以目前的节奏，这个目标现实上需要 ${lo}–${hi} 个月。`
-      : `At your current pace, this goal may realistically take ${lo}–${hi} months.`;
+      ? `在 ${timeline} 个月内实现这个目标可能会感到吃力。将时间线调整到 ${hi} 个月，节奏会健康得多。`
+      : `Reaching this goal in ${timeline} months may feel stressful. A timeline closer to ${hi} months could feel much healthier.`;
   } else {
     timeline_msg = lang === "zh"
-      ? "请先调整你的收支，让储蓄成为可能。"
-      : "Build a positive monthly savings first to make this goal achievable.";
+      ? "先建立正向的月度储蓄，这个目标就会变得清晰可见。"
+      : "Build a positive monthly savings habit first — once you do, this goal will feel much more within reach.";
   }
 
+  // ── Reassurance line ─────────────────────────────────────────────────────
+  const reassurances = lang === "zh"
+    ? ["你不需要完美的财务——只需要一个更好的计划。", "今天的小改变，能让未来感觉轻盈许多。", "你可能比自己想象的做得更好——现在让我们一起优化它。"]
+    : ["You don't need perfect finances — just a better plan.", "Small changes today can make your future feel much lighter.", "You're probably doing better than you think — now let's improve it."];
+  const reassurance = reassurances[score % 3];
+
   return {
-    score, scoreLabel, scoreColor,
+    score, scoreLabel, scoreColor, scoreInterpretation,
     looks_good: looks_good.slice(0, 2),
     needs_attention: needs_attention.slice(0, 2),
     next_move: next_move.slice(0, 2),
-    timeline_msg, realistic_months, on_track,
+    timeline_msg, realistic_months, on_track, reassurance,
   };
 }
 
@@ -254,6 +354,7 @@ export function FinancialSnapshot() {
   const [unlocked, setUnlocked] = useState(false);
   const [unlockLoading, setUnlockLoading] = useState(false);
   const [unlockDone, setUnlockDone] = useState(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
 
   const isSgUser = region === "sg" || region === "my_in_sg";
 
@@ -273,28 +374,37 @@ export function FinancialSnapshot() {
     e.preventDefault();
     if (unlockLoading || unlockDone) return;
     setUnlockLoading(true);
+    setUnlockError(null);
     try {
       const supabase = getSupabaseClient();
-      if (supabase && result) {
-        await supabase.from("financial_snapshots").insert({
-          email: email.trim().toLowerCase(),
-          region,
-          age: parseInt(inputs.age) || null,
-          monthly_income: parseFloat(inputs.income) || null,
-          monthly_expenses: parseFloat(inputs.expenses) || null,
-          current_savings: parseFloat(inputs.savings) || null,
-          main_goal: inputs.goal,
-          timeline_months: parseInt(inputs.timeline) || null,
-          health_score: result.score,
-          fa_interest: faInterest,
-        });
-      }
-    } catch {
-      // best-effort; don't block UX
-    } finally {
-      setUnlockLoading(false);
+      if (!supabase) throw new Error("Supabase client not initialised — check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
+      if (!result) throw new Error("No snapshot result to save");
+
+      const payload = {
+        email: email.trim().toLowerCase(),
+        region,
+        age: parseInt(inputs.age) || null,
+        monthly_income: parseFloat(inputs.income) || null,
+        monthly_expenses: parseFloat(inputs.expenses) || null,
+        current_savings: parseFloat(inputs.savings) || null,
+        main_goal: inputs.goal,
+        timeline_months: parseInt(inputs.timeline) || null,
+        health_score: result.score,
+        fa_interest: null as boolean | null,
+      };
+
+      const { error } = await supabase.from("financial_snapshots").insert(payload);
+      if (error) throw error;
+
+      console.log("[Finara] financial_snapshot saved successfully", { email: payload.email, score: payload.health_score });
       setUnlocked(true);
       setUnlockDone(true);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[Finara] financial_snapshot insert failed:", msg);
+      setUnlockError(lang === "zh" ? "保存失败，请稍后再试。" : "Something went wrong saving your results. Please try again.");
+    } finally {
+      setUnlockLoading(false);
     }
   }
 
@@ -446,6 +556,7 @@ export function FinancialSnapshot() {
                   <div className="text-xs text-muted-foreground mt-1">{inputs.timeline} {s.months}</div>
                 </div>
               </div>
+              <p className="text-sm text-foreground/70 italic mb-3">{result.scoreInterpretation}</p>
 
               <ScoreBar score={result.score} color={result.scoreColor} />
               <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
@@ -462,6 +573,9 @@ export function FinancialSnapshot() {
                   <span>{result.timeline_msg}</span>
                 </div>
               </div>
+
+              {/* Reassurance */}
+              <p className="mt-4 text-center text-sm text-muted-foreground italic">"{result.reassurance}"</p>
             </div>
 
             {/* Three insight cards */}
@@ -574,6 +688,9 @@ export function FinancialSnapshot() {
                     >
                       {unlockLoading ? s.unlocking : s.unlockCta}
                     </button>
+                    {unlockError && (
+                      <p className="text-center text-xs text-destructive">{unlockError}</p>
+                    )}
                     <p className="text-center text-xs text-muted-foreground">{s.privacyNote}</p>
                   </form>
                 )}

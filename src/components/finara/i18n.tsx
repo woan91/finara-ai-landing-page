@@ -113,6 +113,7 @@ type Dict = {
     looksGood: string;
     needsAttention: string;
     nextMove: string;
+    scoreInterpretation?: string;
     unlockTitle: string;
     unlockSubtitle: string;
     blurred1Title: string;
@@ -277,11 +278,11 @@ const en: Dict = {
     months: "months",
     cta: "Get My Financial Snapshot",
     goals: { emergency: "Emergency Fund", travel: "Travel", house: "House / Property", retirement: "Retirement", investment: "Investment" },
-    analysisLabel: "Finara AI analysis",
+    analysisLabel: "Your Financial Reality Check",
     scoreLabel: "Financial Health Score",
-    looksGood: "What Looks Good",
-    needsAttention: "What Needs Attention",
-    nextMove: "Suggested Next Move",
+    looksGood: "What You're Doing Well",
+    needsAttention: "Financial Blind Spot",
+    nextMove: "Smart Next Step",
     unlockTitle: "Unlock Your Full AI Financial Analysis",
     unlockSubtitle: "Enter your email to unlock personalized insights",
     blurred1Title: "Detailed Spending Breakdown",
@@ -441,11 +442,11 @@ const zh: Dict = {
     months: "个月",
     cta: "获取我的财务快照",
     goals: { emergency: "应急基金", travel: "旅行", house: "购房 / 置产", retirement: "退休", investment: "投资" },
-    analysisLabel: "Finara AI 分析",
+    analysisLabel: "你的财务现实检验",
     scoreLabel: "财务健康评分",
-    looksGood: "做得好的地方",
-    needsAttention: "需要关注",
-    nextMove: "建议下一步",
+    looksGood: "你做得好的地方",
+    needsAttention: "财务盲点",
+    nextMove: "明智的下一步",
     unlockTitle: "解锁你的完整 AI 财务分析",
     unlockSubtitle: "输入邮箱，解锁个性化洞察",
     blurred1Title: "详细支出分析",
