@@ -13,7 +13,7 @@ export function Nav() {
             <span className="grid place-items-center size-8 rounded-full bg-primary-gradient text-primary-foreground">
               <Sparkles className="size-4" />
             </span>
-            <span>Finara<span className="text-muted-foreground font-normal"> AI</span></span>
+            <span>Ask<span className="text-muted-foreground font-normal">Finara</span></span>
           </a>
           <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition">{t.nav.features}</a>

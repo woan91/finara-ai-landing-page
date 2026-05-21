@@ -82,32 +82,32 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
     scoreLabel = lang === "zh" ? "卓越" : "Excellent";
     scoreColor = "oklch(0.48 0.17 165)";
     scoreInterpretation = lang === "zh"
-      ? "出色——你正在建立强劲的财务动力。"
-      : "Excellent — you're building strong financial momentum.";
+      ? "你的储蓄一致，财务健康。继续保持这个好习惯——你走在正确的轨道上。"
+      : "You're saving consistently — a great foundation. Keeping this habit going will make a real difference over time.";
   } else if (score >= 75) {
     scoreLabel = lang === "zh" ? "稳健" : "Strong";
     scoreColor = "oklch(0.55 0.15 165)";
     scoreInterpretation = lang === "zh"
-      ? "你走在一条稳健的道路上，还有一些可以优化的空间。"
-      : "You're on a solid path with a few opportunities to improve.";
+      ? "你的财务状况看起来相当稳健。你的目标或许需要一个更清晰的月度储蓄策略。"
+      : "You appear financially stable. Your goals may benefit from a clearer monthly saving strategy.";
   } else if (score >= 60) {
     scoreLabel = lang === "zh" ? "尚可" : "Okay";
     scoreColor = "oklch(0.58 0.17 60)";
     scoreInterpretation = lang === "zh"
-      ? "你做得还不错，但有一些值得关注的财务盲点。"
-      : "You're doing okay, but there are some financial blind spots worth fixing.";
+      ? "你正在取得不错的进展。你的下一个机会或许是在储蓄和未来投资之间找到更好的平衡。"
+      : "You're making good progress. Your next opportunity could be balancing savings and future investments.";
   } else if (score >= 40) {
     scoreLabel = lang === "zh" ? "建设中" : "Building";
     scoreColor = "oklch(0.65 0.18 60)";
     scoreInterpretation = lang === "zh"
-      ? "你的财务状况或许比它应有的更让人感到压力。"
-      : "Your finances may feel more stressful than they need to be.";
+      ? "你的支出是可以控制的。每月小幅提升储蓄，随着时间推移会产生很大的变化。"
+      : "Your expenses are manageable. A small increase in monthly savings could make a big difference over time.";
   } else {
     scoreLabel = lang === "zh" ? "需要关注" : "Needs Attention";
     scoreColor = "oklch(0.6 0.22 25)";
     scoreInterpretation = lang === "zh"
-      ? "一旦发生意外，你的财务缓冲可能不够充足。"
-      : "You may be financially vulnerable if something unexpected happens.";
+      ? "加强你的应急基金可能会让你的财务更有安全感。从小处开始，一点一点地积累。"
+      : "Strengthening your emergency fund may help you feel more financially secure. Starting small is perfectly fine.";
   }
 
   // ── Insight generation ────────────────────────────────────────────────────
@@ -159,19 +159,19 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
 
     // Smart Next Step
     if (efMonths < 3 && disposable > 0) {
-      next_move.push(`If you increase savings by just $${fivePct.toLocaleString()}/month, your emergency fund could be fully built in ${Math.ceil((expenses * 3 - savings) / fivePct)} months.`);
+      next_move.push(`Setting aside a little more each month — even around $${fivePct.toLocaleString()} — could get your emergency fund in a healthier place within a few months.`);
     }
     if (savingsRate < 20 && disposable > 0 && efMonths >= 3) {
-      next_move.push(`A small reduction in discretionary spending of around $${fivePct.toLocaleString()}/month could speed up your goal more than you expect.`);
+      next_move.push(`A small, painless reduction in spending — around $${fivePct.toLocaleString()}/month — could move your goal closer faster than you'd expect.`);
     }
     if (disposable <= 0) {
-      next_move.push("Start by identifying one recurring expense to reduce — even a 5–10% cut in spending can restore positive cash flow.");
+      next_move.push("Try identifying one recurring expense you could reduce slightly — even a small shift can start restoring your financial breathing room.");
     }
     if (realMonths > timeline * 1.2 && isFinite(realMonths)) {
-      next_move.push(`Reaching this goal in ${timeline} months may feel stressful. A timeline closer to ${Math.ceil(realMonths) + 3} months could feel much healthier.`);
+      next_move.push(`A timeline closer to ${Math.ceil(realMonths) + 3} months may feel much more comfortable — and you'll actually enjoy the journey more.`);
     }
     if (next_move.length === 0) {
-      next_move.push("Automate your savings on payday — when it happens before you spend, it stops feeling like sacrifice.");
+      next_move.push("Consider automating a small savings transfer on payday — when saving happens automatically, it stops feeling like a sacrifice.");
     }
   } else {
     // ZH — What You're Doing Well

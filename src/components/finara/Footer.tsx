@@ -16,7 +16,7 @@ export function Footer() {
               <span className="inline-flex size-7 items-center justify-center rounded-lg bg-primary-gradient shadow-glow">
                 <Sparkles className="size-3.5 text-primary-foreground" />
               </span>
-              <span className="font-display text-lg tracking-tight">Finara AI</span>
+              <span className="font-display text-lg tracking-tight">AskFinara</span>
             </div>
             <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
               {t.cta.disclaimerText}
@@ -44,7 +44,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col-reverse items-start justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <div>© {year} Finara AI · {t.cta.rights}</div>
+          <div>© {year} AskFinara · {t.cta.rights}</div>
           <div className="opacity-70">{t.cta.disclaimer}</div>
         </div>
       </div>

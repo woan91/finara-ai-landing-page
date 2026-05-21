@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Nav } from "@/components/finara/Nav";
 import { Hero } from "@/components/finara/Hero";
+import { HowItWorks } from "@/components/finara/HowItWorks";
 import { Features } from "@/components/finara/Features";
 import { Calculator } from "@/components/finara/Calculator";
+import { TrustSection } from "@/components/finara/TrustSection";
 import { CTA } from "@/components/finara/CTA";
 import { Footer } from "@/components/finara/Footer";
 import { I18nProvider } from "@/components/finara/i18n";
@@ -13,10 +15,10 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Finara AI — Your AI Financial Companion" },
-      { name: "description", content: "Plan savings goals, improve financial habits, and build a better future with AI. Built for young professionals and overseas workers." },
-      { property: "og:title", content: "Finara AI — Your AI Financial Companion" },
-      { property: "og:description", content: "AI savings goal planner for the next generation of earners." },
+      { title: "AskFinara — Financial clarity made simple" },
+      { name: "description", content: "Your AI money companion for clearer financial decisions." },
+      { property: "og:title", content: "AskFinara — Financial clarity made simple" },
+      { property: "og:description", content: "Your AI money companion for clearer financial decisions." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -32,9 +34,11 @@ function Index() {
       <main className="min-h-screen">
         <Nav />
         <Hero />
+        <HowItWorks />
         <FinancialSnapshot />
         <Features />
         <Calculator />
+        <TrustSection />
         <CTA />
         <Footer />
         <ChatWidget />
