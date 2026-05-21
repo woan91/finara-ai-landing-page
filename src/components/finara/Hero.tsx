@@ -15,8 +15,7 @@ export function Hero() {
             <span className="truncate">{t.hero.badge}</span>
           </div>
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tight">
-            {t.hero.title1}<span className="text-gradient italic">{t.hero.title2}</span>
-            {t.hero.titleEnd && <><br />{t.hero.titleEnd}</>}
+            {t.hero.title1}<span className="text-gradient italic">{t.hero.title2}{t.hero.titleEnd}</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl">
             {t.hero.subtitle}
