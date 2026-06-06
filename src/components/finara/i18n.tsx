@@ -167,7 +167,7 @@ const fmt = (lang: Lang) => (n: number) =>
 const fmtCur = (lang: Lang, n: number) => fmt(lang)(n);
 
 const en: Dict = {
-  nav: { features: "Features", planner: "AI Goal Planner", getStarted: "Get started", waitlist: "Get Early Access" },
+  nav: { features: "Features", planner: "AI Goal Planner", getStarted: "Get started", waitlist: "Start My Check" },
   hero: {
     badge: "Soft launch in progress · Early users invited gradually",
     title1: "Understand your money. ",
@@ -307,7 +307,7 @@ const en: Dict = {
     emailLabel: "Email Address",
     regionLabel: "Your Region",
     regions: { sg: "Singapore", my_in_sg: "Malaysian working in Singapore", my: "Malaysia", id: "Indonesia", th: "Thailand", other: "Others" },
-    unlockCta: "Unlock My Analysis",
+    unlockCta: "See My Full Analysis",
     unlocking: "Saving…",
     privacyNote: "Your data stays private. No spam.",
     faPrompt: "Want a licensed financial consultant to review your financial situation?",
@@ -480,7 +480,7 @@ const zh: Dict = {
     emailLabel: "邮箱地址",
     regionLabel: "所在地区",
     regions: { sg: "新加坡", my_in_sg: "在新加坡工作的马来西亚人", my: "马来西亚", id: "印度尼西亚", th: "泰国", other: "其他地区" },
-    unlockCta: "解锁我的分析",
+    unlockCta: "查看我的完整分析",
     unlocking: "保存中…",
     privacyNote: "你的数据始终保密，绝不发送垃圾邮件。",
     faPrompt: "希望持牌财务顾问为你审查财务状况吗？",

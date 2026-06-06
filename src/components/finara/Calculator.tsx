@@ -214,17 +214,17 @@ export function Calculator() {
 
             {/* Mode selector */}
             <div>
-              <label className="text-sm text-muted-foreground">
-                {isEn ? "Planning mode" : "规划模式"}
-              </label>
-              <div className="mt-2 flex gap-2">
+              <p className="text-sm text-muted-foreground mb-2">
+                {isEn ? "How would you like AskFinara to plan for you?" : "你想让 AskFinara 怎样帮你规划？"}
+              </p>
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setMode("a")}
                   className={`flex-1 rounded-xl border px-3 py-2.5 text-xs font-medium text-left transition ${mode === "a" ? "border-primary bg-primary/5 text-primary" : "border-border bg-card/60 text-muted-foreground hover:text-foreground"}`}
                 >
-                  <div className="font-semibold mb-0.5">{isEn ? "I have a target date" : "我有目标期限"}</div>
-                  <div className="opacity-70">{isEn ? "AI calculates monthly saving" : "AI 计算每月需存金额"}</div>
+                  <div className="font-semibold mb-0.5">{isEn ? "I want to reach my goal by a date" : "我有目标期限"}</div>
+                  <div className="opacity-70">{isEn ? "Tell AskFinara when you want to achieve your goal — e.g. Korea trip in Dec" : "告诉 AskFinara 你希望何时完成目标——例如：12月去韩国"}</div>
                 </button>
                 <button
                   type="button"
@@ -232,7 +232,7 @@ export function Calculator() {
                   className={`flex-1 rounded-xl border px-3 py-2.5 text-xs font-medium text-left transition ${mode === "b" ? "border-primary bg-primary/5 text-primary" : "border-border bg-card/60 text-muted-foreground hover:text-foreground"}`}
                 >
                   <div className="font-semibold mb-0.5">{isEn ? "I have a monthly budget" : "我有月度预算"}</div>
-                  <div className="opacity-70">{isEn ? "AI estimates time needed" : "AI 估算所需时间"}</div>
+                  <div className="opacity-70">{isEn ? "Tell AskFinara how much you can save monthly, and we'll estimate how long it may take." : "告诉 AskFinara 你每月能存多少，我们来估算大概需要多久。"}</div>
                 </button>
               </div>
             </div>
@@ -357,7 +357,7 @@ export function Calculator() {
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Sparkles className="size-3.5 text-primary" /> {t.calc.analysis}
               </div>
-              <StatusPill isStretch={isStretch} cannotAfford={cannotAfford} t={t} />
+              <StatusPill isStretch={isStretch} cannotAfford={cannotAfford} t={t} isEn={isEn} />
             </div>
 
             {/* Large stat cards */}
@@ -385,7 +385,7 @@ export function Calculator() {
                   {isStretch && (
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-orange-600">
                       <AlertTriangle className="size-3.5" />
-                      {isEn ? "Stretch Goal" : "略具挑战"}
+                      {isEn ? "Ambitious Goal" : "目标略具挑战"}
                     </div>
                   )}
                 </div>
@@ -432,8 +432,8 @@ export function Calculator() {
                   <AlertTriangle className="size-4 shrink-0 mt-0.5 text-orange-500" />
                   <p>
                     {isEn
-                      ? `This goal may be a stretch based on your current disposable income. A more realistic timeline may be around ${realisticMonths} months.`
-                      : `根据你目前的可支配收入，这个目标可能有些挑战。更现实的时间线大约是 ${realisticMonths} 个月。`
+                      ? `Your goal looks a little ambitious based on your current disposable income — but don't worry, here are a few realistic ways to make it work 😊`
+                      : `根据你目前的可支配收入，这个目标看起来稍微有些挑战——不过别担心，这里有几个切实可行的方法 😊`
                     }
                   </p>
                 </div>
@@ -522,7 +522,7 @@ function HealthBar({ score, t }: { score: number; t: ReturnType<typeof useI18n>[
   );
 }
 
-function StatusPill({ isStretch, cannotAfford, t }: { isStretch: boolean; cannotAfford: boolean; t: ReturnType<typeof useI18n>["t"] }) {
+function StatusPill({ isStretch, cannotAfford, t, isEn }: { isStretch: boolean; cannotAfford: boolean; t: ReturnType<typeof useI18n>["t"]; isEn: boolean }) {
   if (cannotAfford) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
@@ -533,7 +533,7 @@ function StatusPill({ isStretch, cannotAfford, t }: { isStretch: boolean; cannot
   if (isStretch) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-700 px-2.5 py-1 text-[11px] font-medium">
-        <AlertTriangle className="size-3" /> {t.calc.stretch}
+        <AlertTriangle className="size-3" /> {isEn ? "Ambitious Goal" : "目标略具挑战"}
       </span>
     );
   }
