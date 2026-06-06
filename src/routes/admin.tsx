@@ -34,9 +34,9 @@ const getAdminDashboard = createServerFn({ method: "GET" })
     });
 
     const [{ count, error: countError }, { data: latest, error: latestError }] = await Promise.all([
-      supabase.from("waitlist_signups").select("*", { count: "exact", head: true }),
+      supabase.from("early_access_signups").select("*", { count: "exact", head: true }),
       supabase
-        .from("waitlist_signups")
+        .from("early_access_signups")
         .select("email,created_at")
         .order("created_at", { ascending: false })
         .limit(10),
@@ -56,7 +56,7 @@ const getAdminDashboard = createServerFn({ method: "GET" })
     const startIso = start.toISOString();
 
     const { data: growthRows, error: growthError } = await supabase
-      .from("waitlist_signups")
+      .from("early_access_signups")
       .select("created_at")
       .gte("created_at", startIso);
 

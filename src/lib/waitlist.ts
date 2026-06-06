@@ -13,7 +13,7 @@ export async function submitWaitlistEmail(input: {
   const supabase = getSupabaseClient();
   if (!supabase) return { ok: false, reason: "missing_config" };
 
-  const { error } = await supabase.from("waitlist_signups").insert({
+  const { error } = await supabase.from("early_access_signups").insert({
     email,
     source: input.source,
   });
@@ -22,7 +22,7 @@ export async function submitWaitlistEmail(input: {
   if (error.code === "23505") return { ok: true, status: "existing" };
 
   if (import.meta.env.DEV) {
-    console.error("[waitlist] insert failed", {
+    console.error("[early_access_signups] insert failed", {
       message: error.message,
       code: error.code,
       details: error.details,
