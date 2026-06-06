@@ -37,6 +37,7 @@ export function Hero() {
               {t.hero.secondaryCta}
             </a>
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">{t.hero.heroCta2}</p>
 
           {/* Trust row */}
           <TrustRow items={t.hero.trust} />

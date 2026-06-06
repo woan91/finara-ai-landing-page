@@ -11,6 +11,7 @@ type Dict = {
     titleEnd: string;
     subtitle: string;
     primaryCta: string;
+    heroCta2: string;
     secondaryCta: string;
     security: string;
     trusted: string;
@@ -166,7 +167,7 @@ const fmt = (lang: Lang) => (n: number) =>
 const fmtCur = (lang: Lang, n: number) => fmt(lang)(n);
 
 const en: Dict = {
-  nav: { features: "Features", planner: "Planner", getStarted: "Get started", waitlist: "Get Early Access" },
+  nav: { features: "Features", planner: "AI Goal Planner", getStarted: "Get started", waitlist: "Get Early Access" },
   hero: {
     badge: "Soft launch in progress · Early users invited gradually",
     title1: "Understand your money. ",
@@ -174,7 +175,8 @@ const en: Dict = {
     titleEnd: ".",
     subtitle:
       "AskFinara helps you understand your finances, plan goals, and feel more confident about money — without confusing financial jargon.",
-    primaryCta: "Get Early Access",
+    primaryCta: "Start My Financial Check",
+    heroCta2: "Start here → Get your Financial Snapshot in 1 minute",
     secondaryCta: "See it in action",
     security: "Bank-grade security",
     trusted: "Soft Launch",
@@ -211,8 +213,8 @@ const en: Dict = {
   },
   calc: {
     eyebrow: "AI Goal Planner",
-    titleA: "Try the ",
-    titleB: "savings preview",
+    titleA: "AI ",
+    titleB: "Goal Planner",
     titleEnd: ".",
     subtitle: "Enter your real numbers. AskFinara calculates your plan, your health score, and what to do next.",
     goal: "Goal",
@@ -339,7 +341,7 @@ const en: Dict = {
 };
 
 const zh: Dict = {
-  nav: { features: "功能", planner: "规划器", getStarted: "立即开始", waitlist: "立即加入" },
+  nav: { features: "功能", planner: "AI 目标规划器", getStarted: "立即开始", waitlist: "立即加入" },
   hero: {
     badge: "软发布进行中 · 逐步邀请早期用户",
     title1: "了解你的财务，",
@@ -347,6 +349,7 @@ const zh: Dict = {
     titleEnd: "。",
     subtitle: "AskFinara 帮助你理解自己的财务状况、规划目标，并对金钱更有信心——没有任何复杂的金融术语。",
     primaryCta: "立即申请早期访问",
+    heroCta2: "从这里开始 → 1分钟了解你的财务健康",
     secondaryCta: "查看演示",
     security: "银行级安全",
     trusted: "软发布",
@@ -383,8 +386,8 @@ const zh: Dict = {
   },
   calc: {
     eyebrow: "AI 目标规划器",
-    titleA: "试试 ",
-    titleB: "储蓄预览",
+    titleA: "AI ",
+    titleB: "目标规划器",
     titleEnd: "。",
     subtitle: "输入你的真实数字。AskFinara 计算计划、健康评分，并告诉你下一步该做什么。",
     goal: "目标",

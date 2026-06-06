@@ -8,13 +8,24 @@ import { getSupabaseClient } from "@/lib/supabase";
 type GoalKey = "emergency" | "travel" | "house" | "retirement" | "investment";
 type RegionKey = "sg" | "my_in_sg" | "my" | "id" | "th" | "other";
 
+const EXPENSE_CATEGORY_KEYS = ["housing", "food", "transport", "insurance", "loans", "shopping", "others"] as const;
+type ExpenseCatKey = typeof EXPENSE_CATEGORY_KEYS[number];
+
 interface Inputs {
   age: string;
   income: string;
   expenses: string;
   savings: string;
-  goal: GoalKey;
-  timeline: string;
+}
+
+interface ExpenseBreakdown {
+  housing: string;
+  food: string;
+  transport: string;
+  insurance: string;
+  loans: string;
+  shopping: string;
+  others: string;
 }
 
 interface SnapshotResult {
@@ -25,86 +36,65 @@ interface SnapshotResult {
   looks_good: string[];
   needs_attention: string[];
   next_move: string[];
-  timeline_msg: string;
-  realistic_months: [number, number] | null;
   on_track: boolean;
   reassurance: string;
+  expenseDiagnosis: string[];
 }
 
 // ─── Score Engine ────────────────────────────────────────────────────────────
 
-function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
+function computeSnapshot(inputs: Inputs, breakdown: ExpenseBreakdown | null, lang: "en" | "zh"): SnapshotResult {
   const income = Math.max(1, parseFloat(inputs.income) || 0);
   const expenses = Math.max(0, parseFloat(inputs.expenses) || 0);
   const savings = Math.max(0, parseFloat(inputs.savings) || 0);
-  const timeline = Math.max(1, parseInt(inputs.timeline) || 12);
   const age = parseInt(inputs.age) || 25;
-  const goal = inputs.goal;
 
   const disposable = income - expenses;
   const savingsRate = disposable > 0 ? (disposable / income) * 100 : 0;
 
-  // Emergency fund target = 6x monthly expenses
-  const efTarget = expenses * 6;
   const efMonths = expenses > 0 ? savings / expenses : 0;
 
-  // Goal targets in same currency (user inputs their own currency)
-  const goalTargets: Record<GoalKey, number> = {
-    emergency: efTarget,
-    travel: income * 3,
-    house: income * 24,
-    retirement: income * 120,
-    investment: income * 10,
-  };
-  const targetAmount = goalTargets[goal];
-  const needed = Math.max(0, targetAmount - savings);
-  const monthlyNeeded = timeline > 0 ? needed / timeline : needed;
-  const realMonths = disposable > 0 ? needed / disposable : Infinity;
-
   // ── Scoring (0–100) ──────────────────────────────────────────────────────
-  // 1. Savings rate score (0–40)
   const rateScore = Math.min(40, (savingsRate / 25) * 40);
-
-  // 2. Emergency fund coverage score (0–30)
   const efScore = Math.min(30, (Math.min(efMonths, 6) / 6) * 30);
-
-  // 3. Goal realism score (0–30)
-  const feasibility = disposable > 0 ? Math.min(1, disposable / Math.max(1, monthlyNeeded)) : 0;
+  // Simple goal realism: disposable income vs. a baseline 10% savings target
+  const baselineTarget = income * 0.1;
+  const feasibility = baselineTarget > 0 ? Math.min(1, disposable / baselineTarget) : 0;
   const goalScore = Math.round(feasibility * 30);
-
-  const score = Math.round(rateScore + efScore + goalScore);
+  const score = Math.min(100, Math.round(rateScore + efScore + goalScore));
 
   // ── Score label & interpretation ─────────────────────────────────────────
   let scoreLabel: string;
   let scoreColor: string;
   let scoreInterpretation: string;
-  if (score >= 90) {
+
+  if (score >= 85) {
     scoreLabel = lang === "zh" ? "卓越" : "Excellent";
-    scoreColor = "oklch(0.48 0.17 165)";
+    scoreColor = "oklch(0.45 0.17 165)";
     scoreInterpretation = lang === "zh"
       ? "你的储蓄一致，财务健康。继续保持这个好习惯——你走在正确的轨道上。"
       : "You're saving consistently — a great foundation. Keeping this habit going will make a real difference over time.";
   } else if (score >= 75) {
     scoreLabel = lang === "zh" ? "稳健" : "Strong";
-    scoreColor = "oklch(0.55 0.15 165)";
+    scoreColor = "oklch(0.52 0.15 165)";
     scoreInterpretation = lang === "zh"
-      ? "你的财务状况看起来相当稳健。你的目标或许需要一个更清晰的月度储蓄策略。"
-      : "You appear financially stable. Your goals may benefit from a clearer monthly saving strategy.";
-  } else if (score >= 60) {
-    scoreLabel = lang === "zh" ? "尚可" : "Okay";
-    scoreColor = "oklch(0.58 0.17 60)";
+      ? "你正在建立良好的财务基础，不过还有一些空间可以进一步加强应急储蓄。"
+      : "You're building a good financial foundation, though there may still be room to strengthen your emergency savings.";
+  } else if (score >= 65) {
+    scoreLabel = lang === "zh" ? "进展良好" : "On Track";
+    scoreColor = "oklch(0.62 0.16 140)";
     scoreInterpretation = lang === "zh"
-      ? "你正在取得不错的进展。你的下一个机会或许是在储蓄和未来投资之间找到更好的平衡。"
+      ? "你正在取得不错的进展。你的下一个机会或许是在储蓄和未来目标之间找到更好的平衡。"
       : "You're making good progress. Your next opportunity could be balancing savings and future investments.";
-  } else if (score >= 40) {
-    scoreLabel = lang === "zh" ? "建设中" : "Building";
-    scoreColor = "oklch(0.65 0.18 60)";
+  } else if (score >= 50) {
+    scoreLabel = lang === "zh" ? "有待改善" : "Needs Improvement";
+    scoreColor = "oklch(0.68 0.16 55)";
     scoreInterpretation = lang === "zh"
       ? "你的支出是可以控制的。每月小幅提升储蓄，随着时间推移会产生很大的变化。"
       : "Your expenses are manageable. A small increase in monthly savings could make a big difference over time.";
   } else {
     scoreLabel = lang === "zh" ? "需要关注" : "Needs Attention";
-    scoreColor = "oklch(0.6 0.22 25)";
+    scoreColor = "oklch(0.60 0.20 30)";
     scoreInterpretation = lang === "zh"
       ? "加强你的应急基金可能会让你的财务更有安全感。从小处开始，一点一点地积累。"
       : "Strengthening your emergency fund may help you feel more financially secure. Starting small is perfectly fine.";
@@ -120,7 +110,6 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
   const fivePct = Math.round(income * 0.05);
 
   if (lang === "en") {
-    // What You're Doing Well
     if (savingsRate >= 20) {
       looks_good.push(`You're saving ${savingsRateRounded}% of your income — that consistency gives you a real long-term advantage.`);
     } else if (savingsRate >= 10) {
@@ -139,27 +128,22 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
       looks_good.push("You've taken the first step — most people never even look at their numbers. Awareness is where change begins.");
     }
 
-    // Financial Blind Spot
     if (efMonths < 1) {
       needs_attention.push(`If your income stopped today, your savings may only support around ${efDays} days of expenses.`);
     } else if (efMonths < 3) {
-      needs_attention.push(`Your current savings cover about ${Math.round(efMonths * 30)} days of expenses — building a 3-month buffer would significantly reduce your financial risk.`);
+      needs_attention.push(`Your savings cover about ${Math.round(efMonths * 30)} days of expenses — a 3-month buffer would meaningfully reduce your financial risk.`);
     }
     if (disposable <= 0) {
       needs_attention.push("You may be relying too heavily on future income rather than building financial breathing room.");
-    } else if (monthlyNeeded > disposable * 0.8) {
-      needs_attention.push("Your goal timeline may feel tight — pushing too hard can make saving feel like a burden rather than a habit.");
-    }
-    if (savingsRate < 10 && disposable > 0) {
+    } else if (savingsRate < 10) {
       needs_attention.push("A small shift in where your money goes each month could have a surprisingly large impact over time.");
     }
     if (needs_attention.length === 0) {
       needs_attention.push("Keep monitoring your expense-to-income ratio monthly — small drifts compound quickly over time.");
     }
 
-    // Smart Next Step
     if (efMonths < 3 && disposable > 0) {
-      next_move.push(`Setting aside a little more each month — even around $${fivePct.toLocaleString()} — could get your emergency fund in a healthier place within a few months.`);
+      next_move.push(`Setting aside a little more each month — even around $${fivePct.toLocaleString()} — could get your emergency fund to a healthier place.`);
     }
     if (savingsRate < 20 && disposable > 0 && efMonths >= 3) {
       next_move.push(`A small, painless reduction in spending — around $${fivePct.toLocaleString()}/month — could move your goal closer faster than you'd expect.`);
@@ -167,14 +151,10 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
     if (disposable <= 0) {
       next_move.push("Try identifying one recurring expense you could reduce slightly — even a small shift can start restoring your financial breathing room.");
     }
-    if (realMonths > timeline * 1.2 && isFinite(realMonths)) {
-      next_move.push(`A timeline closer to ${Math.ceil(realMonths) + 3} months may feel much more comfortable — and you'll actually enjoy the journey more.`);
-    }
     if (next_move.length === 0) {
       next_move.push("Consider automating a small savings transfer on payday — when saving happens automatically, it stops feeling like a sacrifice.");
     }
   } else {
-    // ZH — What You're Doing Well
     if (savingsRate >= 20) {
       looks_good.push(`你储蓄了收入的 ${savingsRateRounded}%——这种一致性让你拥有真正的长期优势。`);
     } else if (savingsRate >= 10) {
@@ -193,7 +173,6 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
       looks_good.push("你已迈出第一步——大多数人从不正视自己的财务数字。觉察是改变的开始。");
     }
 
-    // ZH — Financial Blind Spot
     if (efMonths < 1) {
       needs_attention.push(`如果你的收入今天停止，你的储蓄可能只能支撑约 ${efDays} 天的生活支出。`);
     } else if (efMonths < 3) {
@@ -201,61 +180,57 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
     }
     if (disposable <= 0) {
       needs_attention.push("你可能过度依赖未来的收入，而没有构建足够的财务喘息空间。");
-    } else if (monthlyNeeded > disposable * 0.8) {
-      needs_attention.push("你的目标时间线可能感觉很紧——用力过猛会让储蓄变成负担而非习惯。");
-    }
-    if (savingsRate < 10 && disposable > 0) {
+    } else if (savingsRate < 10) {
       needs_attention.push("每月资金流向的微小调整，随着时间推移可能产生出乎意料的巨大影响。");
     }
     if (needs_attention.length === 0) {
       needs_attention.push("坚持每月监控你的收支比——微小的漂移随时间会快速复利积累。");
     }
 
-    // ZH — Smart Next Step
     if (efMonths < 3 && disposable > 0) {
-      next_move.push(`每月多储蓄 ${fivePct.toLocaleString()} 元，你的应急基金可在约 ${Math.ceil((expenses * 3 - savings) / fivePct)} 个月内建立完成。`);
+      next_move.push(`每月多储蓄 ${fivePct.toLocaleString()} 元，你的应急基金可在几个月内达到更健康的水平。`);
     }
     if (savingsRate < 20 && disposable > 0 && efMonths >= 3) {
       next_move.push(`每月削减约 ${fivePct.toLocaleString()} 元的非必要支出，对目标进度的加速效果会超出你的预期。`);
     }
     if (disposable <= 0) {
-      needs_attention.push("从识别一项可减少的固定支出开始——即使减少 5–10%，也能恢复正向现金流。");
-    }
-    if (realMonths > timeline * 1.2 && isFinite(realMonths)) {
-      next_move.push(`在 ${timeline} 个月内实现这个目标可能会感到有压力。将时间线调整到约 ${Math.ceil(realMonths) + 3} 个月，节奏会舒适许多。`);
+      next_move.push("从识别一项可减少的固定支出开始——即使减少 5–10%，也能恢复正向现金流。");
     }
     if (next_move.length === 0) {
       next_move.push("在发薪日自动转入储蓄——当储蓄在消费前先发生，它就不再感觉像是牺牲。");
     }
   }
 
-  // ── Timeline reality check ───────────────────────────────────────────────
-  let timeline_msg = "";
-  let realistic_months: [number, number] | null = null;
-  const on_track = disposable >= monthlyNeeded;
+  // ── Expense breakdown diagnosis ───────────────────────────────────────────
+  const expenseDiagnosis: string[] = [];
+  if (breakdown) {
+    const housing = parseFloat(breakdown.housing) || 0;
+    const food = parseFloat(breakdown.food) || 0;
+    const transport = parseFloat(breakdown.transport) || 0;
+    const shopping = (parseFloat(breakdown.shopping) || 0);
 
-  if (disposable <= 0) {
-    timeline_msg = lang === "zh"
-      ? "目前支出超过收入。先平衡收支，目标自然会变得触手可及。"
-      : "Your expenses currently exceed income. Balancing your budget is the first step — once that's done, goals become reachable.";
-  } else if (on_track) {
-    timeline_msg = lang === "zh"
-      ? `你出乎意料地走在正轨上——一致性比完美更重要。`
-      : "You're surprisingly on track — consistency matters more than perfection.";
-  } else if (isFinite(realMonths)) {
-    const lo = Math.ceil(realMonths);
-    const hi = lo + 3;
-    realistic_months = [lo, hi];
-    timeline_msg = lang === "zh"
-      ? `在 ${timeline} 个月内实现这个目标可能会感到吃力。将时间线调整到 ${hi} 个月，节奏会健康得多。`
-      : `Reaching this goal in ${timeline} months may feel stressful. A timeline closer to ${hi} months could feel much healthier.`;
-  } else {
-    timeline_msg = lang === "zh"
-      ? "先建立正向的月度储蓄，这个目标就会变得清晰可见。"
-      : "Build a positive monthly savings habit first — once you do, this goal will feel much more within reach.";
+    if (housing / income > 0.30) {
+      expenseDiagnosis.push(lang === "en"
+        ? "Your housing costs are on the higher side. This is worth keeping an eye on as you plan your goals."
+        : "你的住房支出偏高。在规划目标时，这是一个值得关注的方面。");
+    }
+    if (food / income > 0.15) {
+      expenseDiagnosis.push(lang === "en"
+        ? "Your food spending looks slightly higher than average. Small adjustments here may help you reach your goals faster."
+        : "你的餐饮支出略高于平均水平。在这方面做一些小调整，可能帮助你更快实现目标。");
+    }
+    if (transport / income > 0.10) {
+      expenseDiagnosis.push(lang === "en"
+        ? "Your transport spending seems a little high compared to your income. Reviewing this may improve your savings flexibility."
+        : "与收入相比，你的交通支出略高。重新审视这部分支出，可能会提升你的储蓄灵活性。");
+    }
+    if (shopping / income > 0.10) {
+      expenseDiagnosis.push(lang === "en"
+        ? "Your discretionary spending is slightly above average. Trimming a little here could make a meaningful difference over time."
+        : "你的可支配消费略高于平均水平。在这里稍作削减，长期来看会产生显著的差异。");
+    }
   }
 
-  // ── Reassurance line ─────────────────────────────────────────────────────
   const reassurances = lang === "zh"
     ? ["你不需要完美的财务——只需要一个更好的计划。", "今天的小改变，能让未来感觉轻盈许多。", "你可能比自己想象的做得更好——现在让我们一起优化它。"]
     : ["You don't need perfect finances — just a better plan.", "Small changes today can make your future feel much lighter.", "You're probably doing better than you think — now let's improve it."];
@@ -266,7 +241,9 @@ function computeSnapshot(inputs: Inputs, lang: "en" | "zh"): SnapshotResult {
     looks_good: looks_good.slice(0, 2),
     needs_attention: needs_attention.slice(0, 2),
     next_move: next_move.slice(0, 2),
-    timeline_msg, realistic_months, on_track, reassurance,
+    on_track: disposable >= income * 0.1,
+    reassurance,
+    expenseDiagnosis,
   };
 }
 
@@ -335,32 +312,18 @@ interface ActionPoint {
   body: string;
 }
 
-const GOAL_AMOUNTS: Record<GoalKey, (income: number, expenses: number) => number> = {
-  emergency: (_i, e) => e * 3,
-  travel: (i) => i * 3,
-  house: (i) => i * 24,
-  retirement: (i) => i * 120,
-  investment: (i) => i * 10,
-};
-
 function buildActionPlan(inputs: Inputs, lang: "en" | "zh"): ActionPoint[] {
   const income = Math.max(1, parseFloat(inputs.income) || 0);
   const expenses = Math.max(0, parseFloat(inputs.expenses) || 0);
   const savings = Math.max(0, parseFloat(inputs.savings) || 0);
-  const timeline = Math.max(1, parseInt(inputs.timeline) || 12);
   const age = parseInt(inputs.age) || 25;
-  const goal = inputs.goal;
 
   const surplus = income - expenses;
   const savingsRate = income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
   const efMonths = expenses > 0 ? savings / expenses : 0;
-  const goalAmt = GOAL_AMOUNTS[goal](income, expenses);
-  const monthsNeeded = surplus > 0 ? Math.ceil(goalAmt / surplus) : Infinity;
   const fmt = (n: number) => Math.round(n).toLocaleString();
-
   const isEn = lang === "en";
 
-  // Point 1 — Emergency Fund
   let efTitle: string;
   let efBody: string;
   if (efMonths < 3) {
@@ -375,7 +338,6 @@ function buildActionPlan(inputs: Inputs, lang: "en" | "zh"): ActionPoint[] {
       : `你的紧急备用金很稳健，已覆盖 ${efMonths.toFixed(1)} 个月支出，比同龄人做得好。`;
   }
 
-  // Point 2 — Savings Rate
   let srTitle: string;
   let srBody: string;
   if (savingsRate < 20) {
@@ -395,26 +357,6 @@ function buildActionPlan(inputs: Inputs, lang: "en" | "zh"): ActionPoint[] {
       : `储蓄 ${savingsRate}% 的收入非常出色，你正在为未来打下坚实基础。`;
   }
 
-  // Point 3 — Goal Timeline
-  const goalLabel = isEn
-    ? { emergency: "Emergency Fund", travel: "Travel", house: "House / Property", retirement: "Retirement", investment: "Investment" }[goal]
-    : { emergency: "应急基金", travel: "旅行", house: "购房", retirement: "退休", investment: "投资" }[goal];
-
-  let gtTitle: string;
-  let gtBody: string;
-  if (isFinite(monthsNeeded) && timeline < monthsNeeded * 0.8) {
-    gtTitle = isEn ? "Adjust Your Timeline" : "调整你的时间目标";
-    gtBody = isEn
-      ? `Your ${timeline}-month timeline for ${goalLabel} is ambitious. A more comfortable pace would be around ${monthsNeeded} months. Steady progress beats rushing.`
-      : `你 ${timeline} 个月的${goalLabel}目标有些激进。更舒适的节奏大约是 ${monthsNeeded} 个月，稳步前进比冲刺更有效。`;
-  } else {
-    gtTitle = isEn ? "Timeline: On Track" : "时间规划：进度良好";
-    gtBody = isEn
-      ? `Your timeline looks realistic. At your current pace, ${goalLabel} is achievable within ${timeline} months.`
-      : `你的时间规划很合理，按目前进度，${goalLabel}目标在 ${timeline} 个月内是可以实现的。`;
-  }
-
-  // Point 4 — Age Insight
   let ageTitle: string;
   let ageBody: string;
   if (age < 30) {
@@ -434,11 +376,20 @@ function buildActionPlan(inputs: Inputs, lang: "en" | "zh"): ActionPoint[] {
       : "这个阶段，保护现有财富和增值同样重要，专注于稳健资产和退休规划。";
   }
 
+  const nextGoalTitle = isEn ? "Your Next Goal" : "你的下一个目标";
+  const nextGoalBody = isEn
+    ? surplus > 0
+      ? `With $${fmt(surplus)}/month available, the AI Goal Planner below can help you map out a realistic path to your next financial milestone.`
+      : "Once you build a positive monthly surplus, use the AI Goal Planner below to map out your next financial milestone."
+    : surplus > 0
+      ? `你每月有 $${fmt(surplus)} 可用。下方的 AI 目标规划器可以帮助你规划下一个财务里程碑。`
+      : "一旦建立正向的月度盈余，使用下方的 AI 目标规划器来规划你的下一个财务里程碑。";
+
   return [
     { icon: <ShieldCheck className="size-4" />, title: efTitle, body: efBody },
     { icon: <TrendingUp className="size-4" />, title: srTitle, body: srBody },
-    { icon: <Target className="size-4" />, title: gtTitle, body: gtBody },
     { icon: <Star className="size-4" />, title: ageTitle, body: ageBody },
+    { icon: <Target className="size-4" />, title: nextGoalTitle, body: nextGoalBody },
   ];
 }
 
@@ -456,27 +407,55 @@ function ActionPlanCard({ icon, title, body }: ActionPoint) {
   );
 }
 
-const GOAL_ICONS: Record<GoalKey, React.ReactNode> = {
-  emergency: <ShieldCheck className="size-4" />,
-  travel: <Plane className="size-4" />,
-  house: <Home className="size-4" />,
-  retirement: <PiggyBank className="size-4" />,
-  investment: <LineChart className="size-4" />,
+// ─── Shared event for auto-filling Calculator ─────────────────────────────────
+
+export type SnapshotFillData = {
+  income: number;
+  expenses: number;
+  savings: number;
 };
 
+// Simple global callback ref — avoids prop drilling / context for this cross-section use
+let _onSnapshotFill: ((data: SnapshotFillData) => void) | null = null;
+export function registerSnapshotFillCallback(cb: (data: SnapshotFillData) => void) {
+  _onSnapshotFill = cb;
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
+
+const EXPENSE_LABELS_EN: Record<ExpenseCatKey, string> = {
+  housing: "Housing / Rent",
+  food: "Food",
+  transport: "Transport",
+  insurance: "Insurance",
+  loans: "Loans / Debt",
+  shopping: "Shopping & Entertainment",
+  others: "Others",
+};
+const EXPENSE_LABELS_ZH: Record<ExpenseCatKey, string> = {
+  housing: "住房 / 租金",
+  food: "餐饮",
+  transport: "交通",
+  insurance: "保险",
+  loans: "贷款 / 债务",
+  shopping: "购物与娱乐",
+  others: "其他",
+};
 
 export function FinancialSnapshot() {
   const { t, lang } = useI18n();
   const s = t.snapshot;
 
   const [inputs, setInputs] = useState<Inputs>({
-    age: "", income: "", expenses: "", savings: "", goal: "emergency", timeline: "12",
+    age: "", income: "", expenses: "", savings: "",
+  });
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [breakdown, setBreakdown] = useState<ExpenseBreakdown>({
+    housing: "", food: "", transport: "", insurance: "", loans: "", shopping: "", others: "",
   });
   const [result, setResult] = useState<SnapshotResult | null>(null);
   const [showUnlock, setShowUnlock] = useState(false);
 
-  // Unlock form state
   const [email, setEmail] = useState("");
   const [region, setRegion] = useState<RegionKey>("sg");
   const [faInterest, setFaInterest] = useState<boolean | null>(null);
@@ -487,17 +466,38 @@ export function FinancialSnapshot() {
   const [submittedEmails] = useState(() => new Set<string>());
 
   const isSgUser = region === "sg" || region === "my_in_sg";
-
   const set = (k: keyof Inputs) => (v: string) => setInputs((p) => ({ ...p, [k]: v }));
+
+  const expenseLabels = lang === "zh" ? EXPENSE_LABELS_ZH : EXPENSE_LABELS_EN;
+  const breakdownTotal = EXPENSE_CATEGORY_KEYS.reduce((sum, k) => sum + (parseFloat(breakdown[k]) || 0), 0);
+
+  // When breakdown is open and has values, sync total to expenses
+  function handleBreakdownChange(key: ExpenseCatKey, val: string) {
+    const next = { ...breakdown, [key]: val };
+    setBreakdown(next);
+    const total = EXPENSE_CATEGORY_KEYS.reduce((sum, k) => sum + (parseFloat(next[k]) || 0), 0);
+    if (total > 0) {
+      setInputs((p) => ({ ...p, expenses: String(Math.round(total)) }));
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const r = computeSnapshot(inputs, lang);
+    const hasBreakdown = breakdownOpen && breakdownTotal > 0;
+    const r = computeSnapshot(inputs, hasBreakdown ? breakdown : null, lang);
     setResult(r);
     setShowUnlock(true);
     setTimeout(() => {
       document.getElementById("snapshot-result")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
+  }
+
+  function handleGoToPlanner() {
+    const income = parseFloat(inputs.income) || 0;
+    const expenses = parseFloat(inputs.expenses) || 0;
+    const savings = parseFloat(inputs.savings) || 0;
+    if (_onSnapshotFill) _onSnapshotFill({ income, expenses, savings });
+    document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function handleUnlock(e: React.FormEvent) {
@@ -508,7 +508,6 @@ export function FinancialSnapshot() {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Prevent duplicate submissions from the same email in this session
     if (submittedEmails.has(cleanEmail)) {
       setUnlocked(true);
       setUnlockDone(true);
@@ -528,31 +527,24 @@ export function FinancialSnapshot() {
         monthly_income: parseFloat(inputs.income) || null,
         monthly_expenses: parseFloat(inputs.expenses) || null,
         current_savings: parseFloat(inputs.savings) || null,
-        main_goal: inputs.goal || null,
-        timeline_months: parseInt(inputs.timeline) || null,
+        main_goal: null,
+        timeline_months: null,
         health_score: result.score,
         fa_interest: null as boolean | null,
       };
 
-      console.log("INSERTING_TO_TABLE: financial_snapshots");
-      console.log("[Finara] insert payload:", payload);
-
       const { error } = await supabase.from("financial_snapshots").insert(payload);
 
       if (error) {
-        const errMsg = `Supabase insert error [${error.code}]: ${error.message}${error.hint ? " — " + error.hint : ""}`;
-        console.error("[Finara] insert error:", errMsg, error);
-        throw new Error(errMsg);
+        throw new Error(`Supabase insert error [${error.code}]: ${error.message}${error.hint ? " — " + error.hint : ""}`);
       }
-
-      console.log("[Finara] insert success for", cleanEmail, "score:", payload.health_score);
 
       submittedEmails.add(cleanEmail);
       setUnlocked(true);
       setUnlockDone(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error("[Finara] financial_snapshot save failed:", msg);
+      console.error("[AskFinara] snapshot save failed:", msg);
       setUnlockError(msg);
     } finally {
       setUnlockLoading(false);
@@ -614,19 +606,56 @@ export function FinancialSnapshot() {
                 />
               </div>
 
-              {/* Monthly Expenses */}
-              <div>
+              {/* Monthly Expenses + breakdown */}
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium mb-1.5 text-foreground/80">{s.expenses}</label>
                 <input
                   type="number" min="0" required
-                  value={inputs.expenses} onChange={(e) => set("expenses")(e.target.value)}
+                  value={inputs.expenses} onChange={(e) => {
+                    set("expenses")(e.target.value);
+                    // If breakdown is open, clear it to avoid conflicts
+                    if (breakdownOpen) setBreakdownOpen(false);
+                  }}
                   placeholder="2800"
                   className="w-full rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring/40 transition"
                 />
+                <button
+                  type="button"
+                  onClick={() => setBreakdownOpen((o) => !o)}
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition"
+                  aria-expanded={breakdownOpen}
+                >
+                  <ChevronDown className={`size-3.5 transition-transform ${breakdownOpen ? "rotate-180" : ""}`} />
+                  {lang === "zh" ? "细分我的支出" : "Break down my expenses"}
+                </button>
+
+                {breakdownOpen && (
+                  <div className="mt-3 rounded-2xl border border-border bg-secondary/40 p-4 animate-fade-up">
+                    <div className="grid grid-cols-2 gap-3">
+                      {EXPENSE_CATEGORY_KEYS.map((key) => (
+                        <label key={key} className="block">
+                          <span className="text-[11px] text-muted-foreground">{expenseLabels[key]}</span>
+                          <input
+                            type="number" min="0" placeholder="0"
+                            value={breakdown[key]}
+                            onChange={(e) => handleBreakdownChange(key, e.target.value)}
+                            className="mt-1 w-full rounded-xl border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40 transition"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    {breakdownTotal > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{lang === "zh" ? "分类合计（已更新月支出）" : "Total (monthly expenses updated)"}</span>
+                        <span className="font-semibold tabular-nums">{Math.round(breakdownTotal).toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Current Savings */}
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium mb-1.5 text-foreground/80">{s.currentSavings}</label>
                 <input
                   type="number" min="0" required
@@ -634,39 +663,6 @@ export function FinancialSnapshot() {
                   placeholder="8000"
                   className="w-full rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring/40 transition"
                 />
-              </div>
-
-              {/* Main Goal */}
-              <div>
-                <label className="block text-sm font-medium mb-1.5 text-foreground/80">{s.goalLabel}</label>
-                <div className="relative">
-                  <select
-                    value={inputs.goal}
-                    onChange={(e) => set("goal")(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring/40 transition appearance-none"
-                  >
-                    {(["emergency", "travel", "house", "retirement", "investment"] as GoalKey[]).map((g) => (
-                      <option key={g} value={g}>{s.goals[g]}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div>
-                <label className="block text-sm font-medium mb-1.5 text-foreground/80">
-                  {s.timelineLabel} <span className="text-primary font-semibold">{inputs.timeline} {s.months}</span>
-                </label>
-                <input
-                  type="range" min="3" max="120" step="1"
-                  value={inputs.timeline}
-                  onChange={(e) => set("timeline")(e.target.value)}
-                  className="w-full accent-primary"
-                />
-                <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
-                  <span>3</span><span>60</span><span>120</span>
-                </div>
               </div>
             </div>
 
@@ -695,35 +691,29 @@ export function FinancialSnapshot() {
                   <div className="font-display text-6xl leading-none" style={{ color: result.scoreColor }}>
                     {result.score}
                   </div>
-                  <div className="text-sm font-medium mt-1" style={{ color: result.scoreColor }}>
+                  <div className="text-sm font-semibold mt-1" style={{ color: result.scoreColor }}>
                     {result.scoreLabel}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    {GOAL_ICONS[inputs.goal as GoalKey]}
-                    {s.goals[inputs.goal as GoalKey]}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">{inputs.timeline} {s.months}</div>
-                </div>
               </div>
-              <p className="text-sm text-foreground/70 italic mb-3">{result.scoreInterpretation}</p>
+              <p className="text-sm text-foreground/75 mb-3 leading-relaxed">{result.scoreInterpretation}</p>
 
               <ScoreBar score={result.score} color={result.scoreColor} />
               <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
                 <span>0</span><span>50</span><span>100</span>
               </div>
 
-              {/* Timeline reality check */}
-              <div className={`mt-5 rounded-2xl px-4 py-3.5 text-sm border ${result.on_track ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-amber-50 border-amber-100 text-amber-800"}`}>
-                <div className="flex items-start gap-2">
-                  {result.on_track
-                    ? <CheckCircle2 className="size-4 shrink-0 mt-0.5 text-emerald-600" />
-                    : <TrendingUp className="size-4 shrink-0 mt-0.5 text-amber-600" />
-                  }
-                  <span>{result.timeline_msg}</span>
+              {/* Expense diagnosis (only if breakdown was filled) */}
+              {result.expenseDiagnosis.length > 0 && (
+                <div className="mt-5 rounded-2xl bg-amber-50 border border-amber-100 p-4 space-y-2">
+                  {result.expenseDiagnosis.map((msg, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm text-amber-800">
+                      <AlertTriangle className="size-4 shrink-0 mt-0.5 text-amber-500" />
+                      <span>{msg}</span>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
 
               {/* Reassurance */}
               <p className="mt-4 text-center text-sm text-muted-foreground italic">"{result.reassurance}"</p>
@@ -751,6 +741,17 @@ export function FinancialSnapshot() {
               />
             </div>
 
+            {/* "Now plan your goals" button */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleGoToPlanner}
+                className="inline-flex items-center gap-2 rounded-full bg-primary-gradient text-primary-foreground px-8 py-3.5 text-sm font-semibold shadow-glow hover:scale-[1.02] transition-transform"
+              >
+                {lang === "zh" ? "现在，规划你的目标 →" : "Now, plan your goals →"}
+              </button>
+            </div>
+
             {/* Locked section */}
             {showUnlock && (
               <div className="rounded-3xl bg-card border border-border shadow-card p-6 sm:p-8 animate-fade-up">
@@ -764,7 +765,6 @@ export function FinancialSnapshot() {
                   </div>
                 </div>
 
-                {/* Blurred preview */}
                 <div className="grid sm:grid-cols-2 gap-3 mb-6">
                   <BlurredCard title={s.blurred1Title} lines={s.blurred1Lines} />
                   <BlurredCard title={s.blurred2Title} lines={s.blurred2Lines} />
@@ -776,7 +776,6 @@ export function FinancialSnapshot() {
                       <div className="text-base font-semibold text-emerald-800">{s.unlockSuccess}</div>
                     </div>
 
-                    {/* Personalized action plan */}
                     <div>
                       <p className="text-sm font-semibold text-foreground mb-3">{s.comingSoon}</p>
                       <p className="text-xs text-muted-foreground mb-4">{s.actionPlanHeader}</p>
@@ -787,7 +786,6 @@ export function FinancialSnapshot() {
                       </div>
                     </div>
 
-                    {/* FA interest — SG only */}
                     {isSgUser && faInterest === null && (
                       <div className="rounded-2xl border border-border p-5 animate-fade-up">
                         <p className="text-sm font-medium mb-3">{s.faPrompt}</p>
