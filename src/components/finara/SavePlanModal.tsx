@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { X, Mail, Sparkles, CheckCircle2, Loader2, Lock, ArrowRight } from "lucide-react";
+import { X, Mail, Sparkles, CircleCheck as CheckCircle2, Loader as Loader2, Lock, ArrowRight } from "lucide-react";
 import { useI18n } from "./i18n";
+import { getSupabaseClient } from "@/lib/supabase";
+
+async function insertSavedPlan(email: string) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+  await supabase.from("saved_plans").insert({ email: email.trim().toLowerCase(), source: "save_my_plan" });
+}
 
 export function SavePlanModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
@@ -38,11 +45,19 @@ export function SavePlanModal({ open, onClose }: { open: boolean; onClose: () =>
     setLoading("google");
     setTimeout(() => { setLoading(null); setDone(true); }, 900);
   };
-  const handleEmail = (e: React.FormEvent) => {
+  const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
     setLoading("email");
-    setTimeout(() => { setLoading(null); setDone(true); }, 900);
+    try {
+      await insertSavedPlan(trimmed);
+    } catch {
+      // best-effort — show success regardless
+    } finally {
+      setLoading(null);
+    }
+    setDone(true);
   };
 
   return (
